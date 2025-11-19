@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { UnauthorizedError } from './errorHandler';
+import prisma from '../config/database';
 
 // For development, we'll use a simple mock authentication
 // In production, this should validate Azure AD B2C tokens
@@ -24,9 +25,20 @@ export const authenticate = async (
       // Check for X-User-Email header for development
       const userEmail = req.headers['x-user-email'] as string;
       if (userEmail) {
+        // Find or create user
+        let user = await prisma.user.findUnique({
+          where: { email: userEmail },
+        });
+
+        if (!user) {
+          user = await prisma.user.create({
+            data: { email: userEmail },
+          });
+        }
+
         req.user = {
-          id: 'dev-user-id',
-          email: userEmail,
+          id: user.id,
+          email: user.email,
         };
         return next();
       }
