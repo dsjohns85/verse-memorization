@@ -7,6 +7,9 @@ const router = Router();
 // All routes require authentication
 router.use(authenticate);
 
+// TODO: Add rate limiting for production (e.g., express-rate-limit)
+// Recommended: 20 requests per 15 minutes per user
+
 // GET /api/users/me - Get current user
 router.get('/me', getCurrentUser);
 
