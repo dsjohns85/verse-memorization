@@ -1,18 +1,19 @@
 # Verse Memorization 📖
 
-A full-stack TypeScript application for scripture memorization using flashcards and spaced repetition. Master Bible verses with an intelligent review system that optimizes your learning.
+A full-stack TypeScript application for scripture memorization using flashcards and spaced repetition. Master Bible verses with an intelligent review system that optimizes your learning. Features integration with the official **ESV (English Standard Version) API** for automatic verse lookup and accurate text retrieval.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Node](https://img.shields.io/badge/node-18%2B-green.svg)
+![Node](https://img.shields.io/badge/node-20%2B-green.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)
 
 ## 🌟 Features
 
-- **Add Verses**: Easily add Bible verses you want to memorize
+- **ESV API Integration**: Automatically fetch verses from the official ESV API
+- **Add Verses**: Easily add Bible verses with automatic lookup or manual entry
 - **Flashcard Review**: Practice verses using an intuitive flashcard interface
 - **Spaced Repetition**: Smart algorithm (SM-2) schedules optimal review times
 - **Progress Tracking**: Monitor your learning progress with detailed statistics
-- **Multiple Translations**: Support for NIV, ESV, KJV, and more
+- **Multiple Translations**: Support for ESV (primary), NIV, KJV, and more
 - **User Authentication**: Secure login with Azure AD B2C (Apple ID + email/password)
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 
@@ -24,6 +25,7 @@ A full-stack TypeScript application for scripture memorization using flashcards 
 - React 18 with TypeScript
 - Vite for fast development and building
 - React Router for navigation
+- ESV API integration for automatic verse lookup
 
 **Backend:**
 - Node.js with Express and TypeScript
@@ -60,9 +62,10 @@ verse-memorization/
 
 ### Prerequisites
 
-- Node.js 18+ and npm 9+
+- Node.js 20+ and npm 10+
 - Docker and Docker Compose
 - Git
+- **ESV API Key** (free from https://api.esv.org)
 
 ### Using Docker (Recommended)
 

@@ -39,14 +39,18 @@ az account set --subscription "Your Subscription Name"
 az deployment sub create \
   --location eastus \
   --template-file main.bicep \
-  --parameters environment=dev
+  --parameters environment=dev databasePassword='YourSecurePassword123!'
 
-# Deploy to production
+# Deploy to production  
 az deployment sub create \
   --location eastus \
   --template-file main.bicep \
-  --parameters environment=prod resourceGroupName=rg-verse-memorization-prod
+  --parameters environment=prod \
+    resourceGroupName=rg-verse-memorization-prod \
+    databasePassword='YourSecurePassword123!'
 ```
+
+**Important**: Always use a strong, unique password for the database. In production, consider using Azure Key Vault to manage secrets.
 
 ### 4. Get Deployment Outputs
 
@@ -80,14 +84,41 @@ After deployment, update your application configuration:
 
 ## Security Notes
 
-⚠️ **Important**: The Bicep templates use placeholder passwords. In production:
+✅ **Enhanced Security**: The Bicep templates use secure parameters for sensitive data:
 
-1. Use Azure Key Vault for secrets
-2. Enable managed identities
-3. Configure proper network security groups
-4. Enable private endpoints for database
-5. Use strong, randomly generated passwords
-6. Enable Azure AD authentication for PostgreSQL
+1. **Database Password**: Use the `databasePassword` parameter (marked as `@secure()`)
+   ```bash
+   az deployment sub create ... --parameters databasePassword='YourPassword'
+   ```
+
+2. **Azure Key Vault**: For production, integrate Azure Key Vault:
+   - Store database password in Key Vault
+   - Reference secrets in Bicep using Key Vault references
+   - Enable managed identities for secure access
+
+3. **Best Practices**:
+   - Use strong, randomly generated passwords
+   - Never commit passwords to source control
+   - Rotate credentials regularly
+   - Enable Azure AD authentication for PostgreSQL
+   - Use private endpoints for database connections
+
+**Example with Key Vault** (recommended for production):
+```bicep
+param keyVaultName string
+param secretName string
+
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+  name: keyVaultName
+  
+  resource secret 'secrets' existing = {
+    name: secretName
+  }
+}
+
+// Use in PostgreSQL resource
+administratorLoginPassword: keyVault::secret.properties.value
+```
 
 ## Clean Up
 

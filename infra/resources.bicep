@@ -3,6 +3,10 @@ param location string
 param appName string
 param environment string
 
+@secure()
+@description('Administrator password for PostgreSQL server')
+param databasePassword string
+
 var uniqueSuffix = uniqueString(resourceGroup().id)
 
 // Log Analytics Workspace for Container Apps
@@ -43,7 +47,7 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' =
   properties: {
     version: '15'
     administratorLogin: 'dbadmin'
-    administratorLoginPassword: 'P@ssw0rd123!' // TODO: Use Key Vault in production
+    administratorLoginPassword: databasePassword
     storage: {
       storageSizeGB: 32
     }
@@ -117,7 +121,7 @@ resource backendContainerApp 'Microsoft.App/containerApps@2023-05-01' = {
         }
         {
           name: 'database-url'
-          value: 'postgresql://dbadmin:P@ssw0rd123!@${postgresServer.properties.fullyQualifiedDomainName}:5432/verse_memorization'
+          value: '******${postgresServer.properties.fullyQualifiedDomainName}:5432/verse_memorization'
         }
       ]
     }

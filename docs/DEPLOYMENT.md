@@ -220,7 +220,7 @@ To scale the PostgreSQL database:
 az postgres flexible-server update \
   --resource-group rg-verse-memorization \
   --name <your-db-name> \
-  --sku-name Standard_D2s_v3 \
+  --sku-name Standard_D2ds_v4 \
   --tier GeneralPurpose
 ```
 

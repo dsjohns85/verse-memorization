@@ -4,10 +4,22 @@ This guide will help you set up the development environment and start working wi
 
 ## Prerequisites
 
-- **Node.js** 18+ and npm 9+
+- **Node.js** 20+ and npm 10+
 - **Docker** and Docker Compose
 - **Git**
 - **PostgreSQL** (or use Docker)
+- **ESV API Key** (free from https://api.esv.org)
+
+## ESV API Setup
+
+The application uses the official ESV (English Standard Version) API for automatic verse lookup:
+
+1. Visit https://api.esv.org
+2. Create a free account
+3. Generate an API key
+4. Add the key to your `.env` file (see below)
+
+**Note**: The ESV API is free for personal use with reasonable rate limits. The app works without an API key, but automatic verse lookup won't be available.
 
 ## Quick Start
 
@@ -168,7 +180,14 @@ JWT_SECRET="your-secret-key"
 
 ```env
 VITE_API_URL=http://localhost:3001
+VITE_ESV_API_KEY=your-api-key-from-api.esv.org
 ```
+
+**Getting an ESV API Key:**
+1. Visit https://api.esv.org
+2. Sign up for a free account
+3. Create a new API application
+4. Copy the API key to your `.env` file
 
 ## Common Issues
 

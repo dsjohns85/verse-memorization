@@ -52,7 +52,11 @@ export const authenticate = async (
     const token = authHeader.substring(7);
 
     // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as jwt.JwtPayload & {
+    if (!process.env.JWT_SECRET) {
+      throw new UnauthorizedError('JWT secret is not configured');
+    }
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload & {
       sub?: string;
       userId?: string;
       email: string;

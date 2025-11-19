@@ -13,6 +13,10 @@ param appName string = 'verse-memorization'
 @description('Environment name (dev, staging, prod)')
 param environment string = 'dev'
 
+@secure()
+@description('Administrator password for PostgreSQL server')
+param databasePassword string
+
 // Create Resource Group
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
@@ -27,6 +31,7 @@ module resources './resources.bicep' = {
     location: location
     appName: appName
     environment: environment
+    databasePassword: databasePassword
   }
 }
 
