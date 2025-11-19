@@ -1,6 +1,9 @@
 import prisma from '../config/database';
 import { NotFoundError, ValidationError } from '../middleware/errorHandler';
 import { SpacedRepetitionService } from './spacedRepetition';
+import { Review } from '@prisma/client';
+
+type ReviewWithQuality = Pick<Review, 'quality' | 'createdAt'>;
 
 export class ReviewService {
   async createReview(data: {
@@ -114,11 +117,11 @@ export class ReviewService {
     // Calculate stats
     const totalReviews = reviews.length;
     const averageQuality = totalReviews > 0
-      ? reviews.reduce((sum: number, r: typeof reviews[0]) => sum + r.quality, 0) / totalReviews
+      ? reviews.reduce((sum: number, r: ReviewWithQuality) => sum + r.quality, 0) / totalReviews
       : 0;
 
     // Group by date
-    const reviewsByDate = reviews.reduce((acc: Record<string, { count: number; totalQuality: number }>, review: typeof reviews[0]) => {
+    const reviewsByDate = reviews.reduce((acc: Record<string, { count: number; totalQuality: number }>, review: ReviewWithQuality) => {
       const date = review.createdAt.toISOString().split('T')[0];
       if (!acc[date]) {
         acc[date] = { count: 0, totalQuality: 0 };
