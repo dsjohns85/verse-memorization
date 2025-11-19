@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { apiClient } from '../services/api';
 import { ReviewStats } from '../types';
 
@@ -7,11 +7,7 @@ export default function Progress() {
   const [days, setDays] = useState(30);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadStats();
-  }, [days]);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     setLoading(true);
     try {
       const data = await apiClient.getReviewStats(days);
@@ -21,7 +17,11 @@ export default function Progress() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [days]);
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
 
   if (loading) {
     return (

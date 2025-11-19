@@ -16,10 +16,14 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
     };
+
+    // Merge with options headers if provided
+    if (options.headers) {
+      Object.assign(headers, options.headers);
+    }
 
     // In development, add mock user email header
     if (import.meta.env.DEV) {

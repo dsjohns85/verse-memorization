@@ -1,6 +1,5 @@
 import prisma from '../config/database';
 import { NotFoundError, ValidationError } from '../middleware/errorHandler';
-import { SpacedRepetitionService } from './spacedRepetition';
 
 export class VerseService {
   async createVerse(data: {

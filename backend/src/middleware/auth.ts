@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import jwksClient from 'jwks-rsa';
 import { UnauthorizedError } from './errorHandler';
 
 // For development, we'll use a simple mock authentication
@@ -16,7 +15,7 @@ export interface AuthRequest extends Request {
 
 export const authenticate = async (
   req: AuthRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {
@@ -41,10 +40,15 @@ export const authenticate = async (
     const token = authHeader.substring(7);
 
     // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as any;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as jwt.JwtPayload & {
+      sub?: string;
+      userId?: string;
+      email: string;
+      oid?: string;
+    };
     
     req.user = {
-      id: decoded.sub || decoded.userId,
+      id: decoded.sub || decoded.userId || 'unknown',
       email: decoded.email,
       azureAdId: decoded.oid,
     };

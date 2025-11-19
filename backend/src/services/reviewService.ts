@@ -114,11 +114,11 @@ export class ReviewService {
     // Calculate stats
     const totalReviews = reviews.length;
     const averageQuality = totalReviews > 0
-      ? reviews.reduce((sum, r) => sum + r.quality, 0) / totalReviews
+      ? reviews.reduce((sum: number, r: typeof reviews[0]) => sum + r.quality, 0) / totalReviews
       : 0;
 
     // Group by date
-    const reviewsByDate = reviews.reduce((acc, review) => {
+    const reviewsByDate = reviews.reduce((acc: Record<string, { count: number; totalQuality: number }>, review: typeof reviews[0]) => {
       const date = review.createdAt.toISOString().split('T')[0];
       if (!acc[date]) {
         acc[date] = { count: 0, totalQuality: 0 };
