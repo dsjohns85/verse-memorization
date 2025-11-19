@@ -1,0 +1,57 @@
+.app {
+  min-height: 100vh;
+  background-color: #242424;
+}
+
+.navbar {
+  background-color: #1a1a1a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 0;
+}
+
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #646cff;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: rgba(255, 255, 255, 0.87);
+  text-decoration: none;
+  transition: color 0.25s;
+}
+
+.nav-links a:hover {
+  color: #646cff;
+}
+
+.main-content {
+  padding: 2rem 0;
+}
+
+@media (prefers-color-scheme: light) {
+  .app {
+    background-color: #ffffff;
+  }
+  
+  .navbar {
+    background-color: #f9f9f9;
+    border-bottom-color: #ddd;
+  }
+  
+  .nav-links a {
+    color: #213547;
+  }
+}
