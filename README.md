@@ -60,6 +60,28 @@ verse-memorization/
 
 ## 🚀 Quick Start
 
+### ☁️ Deploy to Azure (Production)
+
+Want to deploy to Azure? Follow our quick setup guide:
+
+```bash
+# 1. Deploy infrastructure
+cd infra
+az deployment sub create --location eastus --template-file main.bicep \
+  --parameters environment=prod databasePassword="$(openssl rand -base64 32)" \
+  --name verse-memorization-deployment
+
+# 2. Configure everything automatically
+cd .. && ./scripts/setup-azure.sh
+
+# 3. Validate configuration
+./scripts/validate-config.sh
+```
+
+📖 **See [Azure Quick Start Guide](./docs/QUICK_START_AZURE.md) for complete instructions**
+
+### 💻 Local Development
+
 ### Prerequisites
 
 - Node.js 20+ and npm 10+
@@ -112,6 +134,8 @@ npm run dev
 ## 📚 Documentation
 
 - [Getting Started Guide](./docs/GETTING_STARTED.md) - Setup and installation
+- [**Azure Quick Start**](./docs/QUICK_START_AZURE.md) - **Configure Azure in 5 steps** ⚡
+- [Azure Setup Guide](./docs/AZURE_SETUP.md) - Detailed Azure configuration
 - [API Documentation](./docs/API.md) - REST API reference
 - [Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure
 - [Infrastructure Guide](./infra/README.md) - Azure resources and configuration

@@ -11,7 +11,10 @@ permissions:
 
 env:
   AZURE_RESOURCE_GROUP: rg-verse-memorization
-  CONTAINER_REGISTRY: versememorizationacr
+  # IMPORTANT: Update CONTAINER_REGISTRY with your ACR name after deployment
+  # Run scripts/setup-azure.sh to get the correct value, which will be in format: versememorizationacr<unique-suffix>
+  # Example: versememorizationacrabcd1234
+  CONTAINER_REGISTRY: versememorizationacr  # TODO: Replace with actual ACR name from Azure deployment
   BACKEND_IMAGE_NAME: verse-memorization-backend
   FRONTEND_STATIC_WEB_APP_NAME: verse-memorization-frontend-prod
 
