@@ -62,23 +62,15 @@ verse-memorization/
 
 ### ☁️ Deploy to Azure (Production)
 
-Want to deploy to Azure? Follow our quick setup guide:
+This application uses **OIDC (OpenID Connect)** for secure Azure authentication - no long-lived credentials needed.
 
-```bash
-# 1. Deploy infrastructure
-cd infra
-az deployment sub create --location eastus --template-file main.bicep \
-  --parameters environment=prod databasePassword="$(openssl rand -base64 32)" \
-  --name verse-memorization-deployment
+**Required GitHub Secrets:**
+- `AZURE_CLIENT_ID` - Service principal client ID
+- `AZURE_TENANT_ID` - Azure tenant ID
+- `AZURE_SUBSCRIPTION_ID` - Azure subscription ID
+- `AZURE_STATIC_WEB_APPS_API_TOKEN` - Static Web App deployment token
 
-# 2. Configure everything automatically
-cd .. && ./scripts/setup-azure.sh
-
-# 3. Validate configuration
-./scripts/validate-config.sh
-```
-
-📖 **See [Azure Quick Start Guide](./docs/QUICK_START_AZURE.md) for complete instructions**
+See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for setup instructions.
 
 ### 💻 Local Development
 
@@ -134,10 +126,8 @@ npm run dev
 ## 📚 Documentation
 
 - [Getting Started Guide](./docs/GETTING_STARTED.md) - Setup and installation
-- [**Azure Quick Start**](./docs/QUICK_START_AZURE.md) - **Configure Azure in 5 steps** ⚡
-- [Azure Setup Guide](./docs/AZURE_SETUP.md) - Detailed Azure configuration
 - [API Documentation](./docs/API.md) - REST API reference
-- [Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure
+- [Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure with OIDC
 - [Infrastructure Guide](./infra/README.md) - Azure resources and configuration
 
 ## 🧪 Running Tests
