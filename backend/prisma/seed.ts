@@ -21,20 +21,20 @@ async function main() {
   const verses = [
     {
       reference: 'John 3:16',
-      text: 'For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.',
-      translation: 'NIV',
+      text: 'For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.',
+      translation: 'ESV',
       userId: user.id,
     },
     {
       reference: 'Philippians 4:13',
-      text: 'I can do all this through him who gives me strength.',
-      translation: 'NIV',
+      text: 'I can do all things through him who strengthens me.',
+      translation: 'ESV',
       userId: user.id,
     },
     {
       reference: 'Proverbs 3:5-6',
-      text: 'Trust in the LORD with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.',
-      translation: 'NIV',
+      text: 'Trust in the LORD with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths.',
+      translation: 'ESV',
       userId: user.id,
     },
   ];

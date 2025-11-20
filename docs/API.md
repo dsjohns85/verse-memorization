@@ -50,7 +50,7 @@ Get all verses for the current user.
     "id": "verse_id",
     "reference": "John 3:16",
     "text": "For God so loved the world...",
-    "translation": "NIV",
+    "translation": "ESV",
     "userId": "user_id",
     "createdAt": "2025-11-19T14:00:00.000Z",
     "updatedAt": "2025-11-19T14:00:00.000Z",
@@ -82,7 +82,7 @@ Get a specific verse by ID.
   "id": "verse_id",
   "reference": "John 3:16",
   "text": "For God so loved the world...",
-  "translation": "NIV",
+  "translation": "ESV",
   "userId": "user_id",
   "createdAt": "2025-11-19T14:00:00.000Z",
   "updatedAt": "2025-11-19T14:00:00.000Z",
@@ -101,7 +101,7 @@ Get all verses due for review.
     "id": "verse_id",
     "reference": "John 3:16",
     "text": "For God so loved the world...",
-    "translation": "NIV",
+    "translation": "ESV",
     "reviews": [...]
   }
 ]
@@ -129,7 +129,7 @@ Create a new verse.
 {
   "reference": "John 3:16",
   "text": "For God so loved the world that he gave his one and only Son...",
-  "translation": "NIV"
+  "translation": "ESV"
 }
 ```
 
@@ -139,7 +139,7 @@ Create a new verse.
   "id": "verse_id",
   "reference": "John 3:16",
   "text": "For God so loved the world...",
-  "translation": "NIV",
+  "translation": "ESV",
   "userId": "user_id",
   "createdAt": "2025-11-19T14:00:00.000Z",
   "updatedAt": "2025-11-19T14:00:00.000Z",

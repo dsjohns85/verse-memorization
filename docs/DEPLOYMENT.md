@@ -112,6 +112,55 @@ The repository includes GitHub Actions workflows for automated deployment.
 
 Configure these secrets in your GitHub repository:
 
+#### Recommended: OIDC Authentication (Federated Identity)
+
+For enhanced security, use OIDC authentication instead of long-lived credentials:
+
+1. **Create Federated Identity Credentials**:
+   ```bash
+   # Create service principal
+   az ad sp create-for-rbac \
+     --name "verse-memorization-sp" \
+     --role contributor \
+     --scopes /subscriptions/{subscription-id}/resourceGroups/rg-verse-memorization
+   
+   # Note the appId, then create federated credential
+   az ad app federated-credential create \
+     --id <app-id> \
+     --parameters '{
+       "name": "github-deploy",
+       "issuer": "https://token.actions.githubusercontent.com",
+       "subject": "repo:dsjohns85/verse-memorization:ref:refs/heads/main",
+       "audiences": ["api://AzureADTokenExchange"]
+     }'
+   ```
+
+2. **Configure GitHub Secrets** (Variables, not secrets):
+   - `AZURE_CLIENT_ID`: Application (client) ID from the service principal
+   - `AZURE_TENANT_ID`: Your Azure tenant ID
+   - `AZURE_SUBSCRIPTION_ID`: Your Azure subscription ID
+
+3. **ACR_USERNAME**: Container Registry username
+   ```bash
+   az acr credential show --name <your-acr-name> --query username -o tsv
+   ```
+
+4. **ACR_PASSWORD**: Container Registry password
+   ```bash
+   az acr credential show --name <your-acr-name> --query passwords[0].value -o tsv
+   ```
+
+5. **AZURE_STATIC_WEB_APPS_API_TOKEN**: Get from Static Web App
+   ```bash
+   az staticwebapp secrets list \
+     --name verse-memorization-frontend-prod \
+     --query properties.apiKey -o tsv
+   ```
+
+#### Alternative: Service Principal with Credentials (Not Recommended)
+
+If you prefer traditional authentication (not recommended for security reasons):
+
 1. **AZURE_CREDENTIALS**: Service principal credentials
    ```bash
    az ad sp create-for-rbac \
@@ -122,22 +171,7 @@ Configure these secrets in your GitHub repository:
    ```
    Copy the JSON output to the secret.
 
-2. **ACR_USERNAME**: Container Registry username
-   ```bash
-   az acr credential show --name <your-acr-name> --query username -o tsv
-   ```
-
-3. **ACR_PASSWORD**: Container Registry password
-   ```bash
-   az acr credential show --name <your-acr-name> --query passwords[0].value -o tsv
-   ```
-
-4. **AZURE_STATIC_WEB_APPS_API_TOKEN**: Get from Static Web App
-   ```bash
-   az staticwebapp secrets list \
-     --name verse-memorization-frontend-prod \
-     --query properties.apiKey -o tsv
-   ```
+**Note**: The deployment workflow in `.github/workflows/deploy.yml` is already configured to use OIDC authentication with `azure/login@v2`.
 
 ### Automated Deployment
 
