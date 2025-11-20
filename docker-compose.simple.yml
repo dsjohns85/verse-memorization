@@ -1,0 +1,39 @@
+# Simple Docker Compose - SQLite Version
+# This is the simplest setup - no database server needed!
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: verse-memorization-backend
+    environment:
+      DATABASE_URL: file:./data/app.db
+      NODE_ENV: development
+      PORT: 3001
+      JWT_SECRET: development-secret-change-in-production
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - sqlite_data:/app/data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: verse-memorization-frontend
+    environment:
+      VITE_API_URL: http://localhost:3001
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  sqlite_data:

@@ -18,7 +18,9 @@
     "lint": "npm run lint --workspaces",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down"
+    "docker:down": "docker-compose down",
+    "docker:simple": "docker-compose -f docker-compose.simple.yml up -d",
+    "docker:simple:down": "docker-compose -f docker-compose.simple.yml down"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
