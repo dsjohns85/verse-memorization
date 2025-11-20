@@ -60,6 +60,20 @@ verse-memorization/
 
 ## 🚀 Quick Start
 
+### ☁️ Deploy to Azure (Production)
+
+This application uses **OIDC (OpenID Connect)** for secure Azure authentication - no long-lived credentials needed.
+
+**Required GitHub Secrets:**
+- `AZURE_CLIENT_ID` - Service principal client ID
+- `AZURE_TENANT_ID` - Azure tenant ID
+- `AZURE_SUBSCRIPTION_ID` - Azure subscription ID
+- `AZURE_STATIC_WEB_APPS_API_TOKEN` - Static Web App deployment token
+
+See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for setup instructions.
+
+### 💻 Local Development
+
 ### Prerequisites
 
 - Node.js 20+ and npm 10+
@@ -113,7 +127,7 @@ npm run dev
 
 - [Getting Started Guide](./docs/GETTING_STARTED.md) - Setup and installation
 - [API Documentation](./docs/API.md) - REST API reference
-- [Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure
+- [Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure with OIDC
 - [Infrastructure Guide](./infra/README.md) - Azure resources and configuration
 
 ## 🧪 Running Tests
