@@ -85,10 +85,9 @@ Add these secrets to your GitHub repository (Settings → Secrets and variables 
 - `AZURE_CLIENT_ID` - From setup script output
 - `AZURE_TENANT_ID` - From setup script output
 - `AZURE_SUBSCRIPTION_ID` - From setup script output
-- `ACR_USERNAME` - From setup script output
-- `ACR_PASSWORD` - From setup script output
 - `AZURE_STATIC_WEB_APPS_API_TOKEN` - From setup script output
 
+With full OIDC implementation, you do **not** need to set `ACR_USERNAME` or `ACR_PASSWORD`. Authentication to Azure Container Registry is handled via OIDC.
 The setup script will show you all these values and can set them automatically if you have GitHub CLI installed.
 
 ### Step 4: Update Workflow Configuration
