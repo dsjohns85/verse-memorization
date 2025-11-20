@@ -207,8 +207,6 @@ if command -v gh &> /dev/null; then
         gh secret set AZURE_CLIENT_ID --body "$SP_APP_ID"
         gh secret set AZURE_TENANT_ID --body "$TENANT_ID"
         gh secret set AZURE_SUBSCRIPTION_ID --body "$SUBSCRIPTION_ID"
-        gh secret set ACR_USERNAME --body "$ACR_USERNAME"
-        gh secret set ACR_PASSWORD --body "$ACR_PASSWORD"
         gh secret set AZURE_STATIC_WEB_APPS_API_TOKEN --body "$STATIC_WEB_APP_TOKEN"
         echo -e "${GREEN}✓ GitHub secrets configured!${NC}"
     fi
