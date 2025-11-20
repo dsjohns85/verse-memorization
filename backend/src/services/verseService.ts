@@ -16,7 +16,7 @@ export class VerseService {
       data: {
         reference: data.reference,
         text: data.text,
-        translation: data.translation || 'NIV',
+        translation: data.translation || 'ESV',
         userId: data.userId,
         reviews: {
           create: {
