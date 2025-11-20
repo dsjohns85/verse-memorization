@@ -179,9 +179,9 @@ echo "✓ All GitHub secrets configured!"
 | `AZURE_CLIENT_ID` | Application (Client) ID | From service principal creation output |
 | `AZURE_TENANT_ID` | Tenant ID | `az account show --query tenantId -o tsv` |
 | `AZURE_SUBSCRIPTION_ID` | Subscription ID | `az account show --query id -o tsv` |
-| `ACR_USERNAME` | Container Registry username | `az acr credential show --name <acr-name> --query username -o tsv` |
-| `ACR_PASSWORD` | Container Registry password | `az acr credential show --name <acr-name> --query 'passwords[0].value' -o tsv` |
 | `AZURE_STATIC_WEB_APPS_API_TOKEN` | Static Web App deployment token | `az staticwebapp secrets list --name <name> --resource-group <rg> --query properties.apiKey -o tsv` |
+
+**Note**: With OIDC authentication, the workflow uses the authenticated Azure session to access the Container Registry via `az acr login`, so ACR username/password secrets are not needed.
 
 ### 7. Update Deployment Workflow
 

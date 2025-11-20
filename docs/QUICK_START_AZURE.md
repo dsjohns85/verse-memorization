@@ -53,8 +53,11 @@ The `setup-azure.sh` script will output all required secrets. Add them to GitHub
 gh secret set AZURE_CLIENT_ID --body "<value>"
 gh secret set AZURE_TENANT_ID --body "<value>"
 gh secret set AZURE_SUBSCRIPTION_ID --body "<value>"
+gh secret set AZURE_STATIC_WEB_APPS_API_TOKEN --body "<value>"
+```
 
-> **Note:** You do not need to set ACR_USERNAME or ACR_PASSWORD secrets when using OIDC authentication with `az acr login` in your GitHub Actions workflows.
+**Note**: ACR authentication uses OIDC via the Azure login action, so no ACR username/password secrets are needed.
+
 **Via GitHub Web UI:**
 Go to: Repository → Settings → Secrets and variables → Actions → New repository secret
 

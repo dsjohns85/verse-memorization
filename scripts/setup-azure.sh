@@ -168,9 +168,10 @@ cat > "$SUMMARY_FILE" << EOF
 AZURE_CLIENT_ID=$SP_APP_ID
 AZURE_TENANT_ID=$TENANT_ID
 AZURE_SUBSCRIPTION_ID=$SUBSCRIPTION_ID
-ACR_USERNAME=$ACR_USERNAME
-ACR_PASSWORD=$ACR_PASSWORD
 AZURE_STATIC_WEB_APPS_API_TOKEN=$STATIC_WEB_APP_TOKEN
+
+# Note: ACR authentication uses OIDC via the Azure login action
+# No ACR username/password secrets are needed
 
 # GitHub Workflow Environment Variables
 # Update these in .github/workflows/deploy.yml
