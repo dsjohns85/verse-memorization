@@ -72,13 +72,7 @@ ACR_NAME=$(az deployment sub show --name "$DEPLOYMENT_NAME" --query 'properties.
 STATIC_WEB_APP_URL=$(az deployment sub show --name "$DEPLOYMENT_NAME" --query 'properties.outputs.staticWebAppUrl.value' -o tsv 2>/dev/null || echo "")
 BACKEND_URL=$(az deployment sub show --name "$DEPLOYMENT_NAME" --query 'properties.outputs.containerAppUrl.value' -o tsv 2>/dev/null || echo "")
 
-if [ -n "$ACR_NAME" ]; then
-    ACR_USERNAME=$(az acr credential show --name "$ACR_NAME" --query username -o tsv 2>/dev/null || echo "")
-    ACR_PASSWORD=$(az acr credential show --name "$ACR_NAME" --query 'passwords[0].value' -o tsv 2>/dev/null || echo "")
-else
-    ACR_USERNAME=""
-    ACR_PASSWORD=""
-fi
+# OIDC authentication is used; ACR username/password are not needed.
 
 # Get Static Web App name from URL
 if [ -n "$STATIC_WEB_APP_URL" ]; then
