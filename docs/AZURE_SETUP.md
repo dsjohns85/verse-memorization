@@ -88,14 +88,10 @@ After deployment, extract the required values:
 # Get the resource group name
 RESOURCE_GROUP="rg-verse-memorization"
 
-# Get Container Registry credentials
+# Get Container Registry name
 ACR_NAME=$(az deployment sub show --name verse-memorization-deployment --query 'properties.outputs.containerRegistryName.value' -o tsv)
-ACR_USERNAME=$(az acr credential show --name $ACR_NAME --query username -o tsv)
-ACR_PASSWORD=$(az acr credential show --name $ACR_NAME --query 'passwords[0].value' -o tsv)
 
 echo "Container Registry Name: $ACR_NAME"
-echo "Container Registry Username: $ACR_USERNAME"
-echo "Container Registry Password: $ACR_PASSWORD"
 
 # Get Static Web App deployment token
 STATIC_WEB_APP_NAME=$(az deployment sub show --name verse-memorization-deployment --query 'properties.outputs.staticWebAppUrl.value' -o tsv | sed 's/https:\/\///' | cut -d'.' -f1)
@@ -161,12 +157,12 @@ cd /path/to/verse-memorization
 gh secret set AZURE_CLIENT_ID --body "$APP_ID"
 gh secret set AZURE_TENANT_ID --body "$TENANT_ID"
 gh secret set AZURE_SUBSCRIPTION_ID --body "$SUBSCRIPTION_ID"
-gh secret set ACR_USERNAME --body "$ACR_USERNAME"
-gh secret set ACR_PASSWORD --body "$ACR_PASSWORD"
 gh secret set AZURE_STATIC_WEB_APPS_API_TOKEN --body "$STATIC_WEB_APP_TOKEN"
 
 echo "✓ All GitHub secrets configured!"
 ```
+
+**Note**: ACR authentication uses OIDC via the Azure login action, so ACR username/password secrets are not needed.
 
 **Using GitHub Web UI:**
 
@@ -262,22 +258,7 @@ az staticwebapp appsettings set \
     VITE_AZURE_AD_KNOWN_AUTHORITIES=versememorization.b2clogin.com
 ```
 
-### 9. Configure ESV API Key (Required for Verse Lookup)
-
-The application uses the ESV Bible API for verse lookup:
-
-1. Go to https://api.esv.org
-2. Sign up for a free API key
-3. Configure it in your Static Web App:
-
-```bash
-az staticwebapp appsettings set \
-  --name $STATIC_WEB_APP_NAME \
-  --resource-group $RESOURCE_GROUP \
-  --setting-names VITE_ESV_API_KEY=<your-esv-api-key>
-```
-
-### 10. Initial Deployment
+### 9. Initial Deployment
 
 Now that everything is configured, trigger your first deployment:
 
@@ -294,7 +275,7 @@ Monitor the deployment in GitHub Actions:
 2. Click on **Actions** tab
 3. Watch the "Deploy to Azure" workflow
 
-### 11. Verify Deployment
+### 10. Verify Deployment
 
 After successful deployment:
 
