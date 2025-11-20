@@ -104,8 +104,6 @@ if command -v gh &> /dev/null; then
     check_github_secret "AZURE_CLIENT_ID"
     check_github_secret "AZURE_TENANT_ID"
     check_github_secret "AZURE_SUBSCRIPTION_ID"
-    check_github_secret "ACR_USERNAME"
-    check_github_secret "ACR_PASSWORD"
     check_github_secret "AZURE_STATIC_WEB_APPS_API_TOKEN"
 else
     echo -e "${YELLOW}⚠ GitHub CLI not installed, cannot check secrets${NC}"
