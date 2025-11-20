@@ -2,7 +2,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and Prisma schema for dependency installation
+# These are copied separately from source code to leverage Docker layer caching
 COPY package*.json ./
 COPY prisma ./prisma/
 
@@ -23,7 +24,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and Prisma schema for dependency installation
+# These are copied separately from source code to leverage Docker layer caching
 COPY package*.json ./
 COPY prisma ./prisma/
 
