@@ -8,7 +8,7 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: cd backend && npm install && npx prisma generate && npm run build
+    buildCommand: cd backend && cp prisma/schema.postgresql.prisma prisma/schema.prisma && npm install && npx prisma generate && npm run build
     startCommand: cd backend && npx prisma migrate deploy && npm start
     envVars:
       - key: DATABASE_URL

@@ -24,11 +24,12 @@ Railway offers a generous free tier perfect for this app.
 
 5. **Configure environment variables** for the backend service:
    ```
-   DATABASE_PROVIDER=postgresql
    NODE_ENV=production
    PORT=3001
    JWT_SECRET=generate-a-random-secret-here
    ```
+   
+   Note: Railway automatically sets `DATABASE_URL` when you add PostgreSQL. Make sure to update your build command to use the PostgreSQL schema (see "Database Options" section).
 
 6. **Deploy!** Railway will automatically:
    - Build your app
@@ -60,12 +61,13 @@ Render offers a free tier that works great for this app.
      - Start Command: `cd backend && npx prisma migrate deploy && npm start`
      - Environment Variables:
        ```
-       DATABASE_PROVIDER=postgresql
        DATABASE_URL=<your-postgres-url>
        NODE_ENV=production
        PORT=3001
        JWT_SECRET=generate-a-random-secret
        ```
+       
+   Note: For PostgreSQL, you need to use the PostgreSQL schema. See deployment notes below.
 
 4. **Deploy the frontend**:
    - Click "New +" → "Static Site"
@@ -106,10 +108,11 @@ Fly.io offers a generous free tier and excellent performance.
 
 4. **Set environment variables**:
    ```bash
-   fly secrets set DATABASE_PROVIDER=postgresql
    fly secrets set NODE_ENV=production
    fly secrets set JWT_SECRET=$(openssl rand -base64 32)
    ```
+   
+   Note: Fly.io automatically sets `DATABASE_URL` when you add PostgreSQL
 
 5. **Deploy the frontend**:
    ```bash
@@ -138,13 +141,14 @@ For maximum control and cost savings, deploy to your own server (e.g., DigitalOc
 2. **Create a `.env` file** in the backend directory:
    ```bash
    cat > backend/.env << EOF
-   DATABASE_PROVIDER=sqlite
    DATABASE_URL=file:./prod.db
    NODE_ENV=production
    PORT=3001
    JWT_SECRET=$(openssl rand -base64 32)
    EOF
    ```
+   
+   Note: This uses SQLite. For PostgreSQL, see "Database Options" below.
 
 3. **Start with Docker Compose**:
    ```bash
@@ -170,7 +174,6 @@ For a production setup with SSL:
        build: ./backend
        restart: unless-stopped
        environment:
-         DATABASE_PROVIDER: sqlite
          DATABASE_URL: file:./data/prod.db
          NODE_ENV: production
          PORT: 3001
@@ -223,12 +226,29 @@ For a production setup with SSL:
 - **Pros**: No setup required, file-based, zero config
 - **Cons**: Not suitable for high concurrency
 - **Cost**: Free
+- **Setup**: Default schema works out of the box
 
 ### PostgreSQL (Recommended for Production)
 - **Use for**: Production, multiple users
 - **Pros**: Full-featured, battle-tested, handles concurrent users
 - **Cons**: Requires a database server
 - **Cost**: Free tier available on Railway, Render, Fly.io
+- **Setup**: Copy `schema.postgresql.prisma` to `schema.prisma` before deploying
+
+## Important Note on Database Schema
+
+The app uses **SQLite by default** (schema.prisma). For PostgreSQL deployments:
+
+```bash
+# Before deploying with PostgreSQL
+cd backend/prisma
+cp schema.postgresql.prisma schema.prisma
+```
+
+Or add this to your deployment build command:
+```bash
+cd backend && cp prisma/schema.postgresql.prisma prisma/schema.prisma && npm install && npx prisma generate && npm run build
+```
 
 ## 🔑 Authentication
 
@@ -291,8 +311,8 @@ docker-compose up -d
 
 ### Database connection issues
 - Check your `DATABASE_URL` is correct
-- Ensure `DATABASE_PROVIDER` matches your database type
 - For SQLite, make sure the directory is writable
+- For PostgreSQL, ensure you've copied the PostgreSQL schema: `cp prisma/schema.postgresql.prisma prisma/schema.prisma`
 
 ### Build failures
 - Ensure Node.js 20+ is being used

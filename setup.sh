@@ -35,13 +35,18 @@ cd backend
 # Create .env if it doesn't exist
 if [ ! -f .env ]; then
     echo "📝 Creating .env file..."
-    cat > .env << 'EOF'
+    
+    # Generate a random JWT secret
+    JWT_SECRET=$(openssl rand -base64 32 2>/dev/null || echo "CHANGE-THIS-SECRET-$(date +%s)-$(shuf -i 1000-9999 -n 1)")
+    
+    cat > .env << EOF
 DATABASE_URL=file:./dev.db
 NODE_ENV=development
 PORT=3001
-JWT_SECRET=development-secret-key
+JWT_SECRET=${JWT_SECRET}
 EOF
-    echo "✅ Created backend/.env"
+    echo "✅ Created backend/.env with random JWT secret"
+    echo "⚠️  For production, use a strong, unique JWT secret!"
 fi
 
 # Install backend dependencies
@@ -50,7 +55,7 @@ npm install
 # Generate Prisma client and run migrations
 echo "🗄️  Setting up SQLite database..."
 npx prisma generate
-npx prisma migrate deploy
+npx prisma migrate dev --name init
 echo "✅ Database ready!"
 echo ""
 
