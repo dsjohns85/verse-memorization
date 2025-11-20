@@ -5,10 +5,9 @@ This guide will help you set up the development environment and start working wi
 ## Prerequisites
 
 - **Node.js** 20+ and npm 10+
-- **Docker** and Docker Compose
 - **Git**
-- **PostgreSQL** (or use Docker)
-- **ESV API Key** (free from https://api.esv.org)
+- **Docker** and Docker Compose (optional - for PostgreSQL)
+- **ESV API Key** (optional - free from https://api.esv.org)
 
 ## ESV API Setup
 
@@ -23,18 +22,45 @@ The application uses the official ESV (English Standard Version) API for automat
 
 ## Quick Start
 
-### 1. Clone the Repository
+### Option 1: SQLite (Simplest - No Docker needed)
+
+Perfect for getting started quickly or personal use:
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/dsjohns85/verse-memorization.git
 cd verse-memorization
+
+# 2. Install all dependencies
+npm install
+
+# 3. Setup backend with SQLite
+cd backend
+cp .env.example .env
+# The .env is already configured for SQLite by default
+npx prisma generate
+npx prisma migrate dev
+npm run dev &
+
+# 4. In a new terminal, start frontend
+cd ../frontend
+npm install
+npm run dev
 ```
 
-### 2. Setup with Docker (Recommended)
+Access:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3001
 
-The easiest way to get started is using Docker Compose:
+### Option 2: Docker with PostgreSQL (Production-like)
+
+Use Docker Compose for a production-like setup with PostgreSQL:
 
 ```bash
+# Clone the repository
+git clone https://github.com/dsjohns85/verse-memorization.git
+cd verse-memorization
+
 # Start all services (database, backend, frontend)
 docker-compose up
 ```
@@ -44,11 +70,9 @@ This will:
 - Start backend API on http://localhost:3001
 - Start frontend on http://localhost:5173
 
-### 3. Setup Locally (Alternative)
+## Manual Backend Setup (Alternative)
 
-If you prefer to run services locally:
-
-#### Backend Setup
+If you want more control over the backend setup:
 
 ```bash
 cd backend
@@ -56,10 +80,15 @@ cd backend
 # Install dependencies
 npm install
 
-# Copy environment file
+# Copy and configure environment file
 cp .env.example .env
 
-# Edit .env with your database connection
+# For SQLite (simplest):
+# DATABASE_PROVIDER="sqlite"
+# DATABASE_URL="file:./dev.db"
+
+# For PostgreSQL (if you have it running):
+# DATABASE_PROVIDER="postgresql"
 # DATABASE_URL="postgresql://postgres:postgres@localhost:5432/verse_memorization"
 
 # Generate Prisma Client
@@ -68,7 +97,7 @@ npx prisma generate
 # Run migrations
 npx prisma migrate dev
 
-# Seed the database (optional)
+# Optional: Seed the database with sample data
 npm run prisma:seed
 
 # Start development server
@@ -77,7 +106,7 @@ npm run dev
 
 The backend API will be available at http://localhost:3001
 
-#### Frontend Setup
+## Manual Frontend Setup (Alternative)
 
 ```bash
 cd frontend
@@ -170,16 +199,31 @@ verse-memorization/
 ### Backend (.env)
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/verse_memorization"
+# Database - Choose one:
+
+# Option 1: SQLite (Simplest - no setup needed)
+DATABASE_PROVIDER="sqlite"
+DATABASE_URL="file:./dev.db"
+
+# Option 2: PostgreSQL (Production-ready)
+# DATABASE_PROVIDER="postgresql"
+# DATABASE_URL="postgresql://postgres:postgres@localhost:5432/verse_memorization"
+
 NODE_ENV="development"
 PORT=3001
+
+# JWT secret (only needed for production authentication)
 JWT_SECRET="your-secret-key"
+
+# Optional: ESV API for automatic verse lookup
+ESV_API_KEY="your-api-key"
 ```
 
 ### Frontend (.env)
 
 ```env
 VITE_API_URL=http://localhost:3001
+# Optional: ESV API key for automatic verse lookup
 VITE_ESV_API_KEY=your-api-key-from-api.esv.org
 ```
 
@@ -193,11 +237,13 @@ VITE_ESV_API_KEY=your-api-key-from-api.esv.org
 
 ### Database Connection Error
 
-If you get a database connection error:
+**With SQLite**: Make sure the backend directory is writable and you ran `npx prisma generate` and `npx prisma migrate dev`.
 
+**With PostgreSQL**:
 1. Make sure PostgreSQL is running
 2. Check your DATABASE_URL in backend/.env
 3. Verify the database exists: `createdb verse_memorization`
+4. Ensure DATABASE_PROVIDER is set to "postgresql"
 
 ### Port Already in Use
 
@@ -217,9 +263,10 @@ npx prisma generate
 
 ## Next Steps
 
+- [Simple Deployment Guide](./SIMPLE_DEPLOYMENT.md) - **Deploy to free cloud platforms**
 - [Development Guide](./DEVELOPMENT.md) - Learn about the development workflow
 - [API Documentation](./API.md) - Explore the REST API
-- [Deployment Guide](./DEPLOYMENT.md) - Deploy to Azure
+- [Azure Deployment Guide](./DEPLOYMENT.md) - Advanced: Deploy to Azure
 
 ## Getting Help
 

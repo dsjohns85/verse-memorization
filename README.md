@@ -1,6 +1,11 @@
 # Verse Memorization 📖
 
-A full-stack TypeScript application for scripture memorization using flashcards and spaced repetition. Master Bible verses with an intelligent review system that optimizes your learning. Features integration with the official **ESV (English Standard Version) API** for automatic verse lookup and accurate text retrieval.
+A **simple, lightweight** full-stack TypeScript application for scripture memorization using flashcards and spaced repetition. Master Bible verses with an intelligent review system that optimizes your learning.
+
+✨ **Deploy in 5 minutes** on free platforms like Railway, Render, or Fly.io
+💰 **Zero to low cost** - Free tier options available
+🚀 **No complex setup** - Works with SQLite or PostgreSQL
+🤖 **AI-enabled** - Optional ESV API integration for automatic verse lookup
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node](https://img.shields.io/badge/node-20%2B-green.svg)
@@ -8,13 +13,13 @@ A full-stack TypeScript application for scripture memorization using flashcards 
 
 ## 🌟 Features
 
-- **ESV API Integration**: Automatically fetch verses from the official ESV API
-- **Add Verses**: Easily add Bible verses with automatic lookup or manual entry
 - **Flashcard Review**: Practice verses using an intuitive flashcard interface
 - **Spaced Repetition**: Smart algorithm (SM-2) schedules optimal review times
 - **Progress Tracking**: Monitor your learning progress with detailed statistics
-- **Multiple Translations**: Support for ESV (primary), NIV, KJV, and more
-- **User Authentication**: Secure login with Azure AD B2C (Apple ID + email/password)
+- **Add Verses**: Easily add Bible verses with manual entry
+- **Optional ESV API**: Automatically fetch verses from the official ESV API
+- **Multiple Database Options**: SQLite (simple) or PostgreSQL (production)
+- **Simple Authentication**: Development mode for easy testing, JWT ready for production
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 
 ## 🏗️ Architecture
@@ -25,26 +30,21 @@ A full-stack TypeScript application for scripture memorization using flashcards 
 - React 18 with TypeScript
 - Vite for fast development and building
 - React Router for navigation
-- ESV API integration for automatic verse lookup
+- Simple API client with fetch
 
 **Backend:**
 - Node.js with Express and TypeScript
-- PostgreSQL database with Prisma ORM
-- JWT-based authentication
+- SQLite (development) or PostgreSQL (production)
+- Prisma ORM for database access
+- Simple JWT-ready authentication
 - RESTful API design
 
-**Infrastructure:**
-- Azure Static Web Apps (frontend hosting)
-- Azure Container Apps (backend hosting)
-- Azure Database for PostgreSQL
-- Azure Container Registry
-- Bicep for Infrastructure as Code
-
-**DevOps:**
-- Docker containers for consistency
-- GitHub Codespaces for development
-- GitHub Actions for CI/CD
-- Automated testing and deployment
+**Deployment Options:**
+- **Railway.app** - Deploy with one click (Free tier available)
+- **Render.com** - Free hosting for small projects
+- **Fly.io** - Fast global deployment (Free tier available)
+- **Docker** - Self-host on any VPS (Starting at $4/month)
+- **Azure** - Enterprise option (Advanced setup in `docs/DEPLOYMENT.md`)
 
 ### Project Structure
 
@@ -60,61 +60,69 @@ verse-memorization/
 
 ## 🚀 Quick Start
 
-### ☁️ Deploy to Azure (Production)
+### ☁️ Deploy to Free Cloud Platform (Recommended)
 
-This application uses **OIDC (OpenID Connect)** for secure Azure authentication - no long-lived credentials needed.
+**Deploy in 5 minutes** to Railway, Render, or Fly.io:
 
-**Required GitHub Secrets:**
-- `AZURE_CLIENT_ID` - Service principal client ID
-- `AZURE_TENANT_ID` - Azure tenant ID
-- `AZURE_SUBSCRIPTION_ID` - Azure subscription ID
-- `AZURE_STATIC_WEB_APPS_API_TOKEN` - Static Web App deployment token
+1. Fork this repository
+2. Sign up at [Railway.app](https://railway.app) (or [Render](https://render.com))
+3. Create new project from your fork
+4. Add PostgreSQL database (or use SQLite)
+5. Deploy! 🎉
 
-See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for setup instructions.
+📖 **See [docs/SIMPLE_DEPLOYMENT.md](./docs/SIMPLE_DEPLOYMENT.md)** for detailed step-by-step guides.
 
 ### 💻 Local Development
 
 ### Prerequisites
 
 - Node.js 20+ and npm 10+
-- Docker and Docker Compose
+- Docker and Docker Compose (optional)
 - Git
-- **ESV API Key** (free from https://api.esv.org)
+- **ESV API Key** (optional, free from https://api.esv.org)
 
-### Using Docker (Recommended)
+### Quick Start (SQLite - Simplest)
 
 ```bash
 # Clone the repository
 git clone https://github.com/dsjohns85/verse-memorization.git
 cd verse-memorization
 
-# Start all services
+# Install dependencies
+npm install
+
+# Set up backend with SQLite
+cd backend
+cp .env.example .env
+# Edit .env to use SQLite (already configured by default)
+npx prisma generate
+npx prisma migrate dev
+npm run dev
+
+# In a new terminal, start frontend
+cd frontend
+npm install
+npm run dev
+```
+
+Access the application:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3001
+
+### Using Docker (PostgreSQL)
+
+```bash
+# Clone the repository
+git clone https://github.com/dsjohns85/verse-memorization.git
+cd verse-memorization
+
+# Start all services with PostgreSQL
 docker-compose up
 ```
 
 Access the application:
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3001
-- Database: localhost:5432
-
-### Local Development
-
-```bash
-# Install root dependencies
-npm install
-
-# Install backend dependencies
-cd backend
-npm install
-npx prisma generate
-npx prisma migrate dev
-npm run dev
-
-# In a new terminal, install frontend dependencies
-cd frontend
-npm install
-npm run dev
-```
 
 ### GitHub Codespaces
 
@@ -125,10 +133,11 @@ npm run dev
 
 ## 📚 Documentation
 
+- [Simple Deployment Guide](./docs/SIMPLE_DEPLOYMENT.md) - **Start here!** Deploy to free platforms
 - [Getting Started Guide](./docs/GETTING_STARTED.md) - Setup and installation
 - [API Documentation](./docs/API.md) - REST API reference
-- [Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure with OIDC
-- [Infrastructure Guide](./infra/README.md) - Azure resources and configuration
+- [Azure Deployment Guide](./docs/DEPLOYMENT.md) - Advanced: Deploy to Azure (for enterprises)
+- [Infrastructure Guide](./infra/README.md) - Advanced: Azure resources
 
 ## 🧪 Running Tests
 
@@ -154,12 +163,12 @@ cd frontend && npm test
 
 ## 🔐 Security
 
-- Azure AD B2C for authentication
-- JWT tokens for API access
-- HTTPS only in production
+- Simple development authentication for testing
+- JWT-ready authentication for production
+- HTTPS recommended for production
 - Environment variables for secrets
 - Input validation and sanitization
-- SQL injection prevention via Prisma
+- SQL injection prevention via Prisma ORM
 
 ## 📈 Spaced Repetition Algorithm
 
