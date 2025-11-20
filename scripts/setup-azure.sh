@@ -4,6 +4,8 @@
 # This script helps extract configuration values after deploying infrastructure
 
 set -e
+set -u
+set -o pipefail
 
 echo "==========================================="
 echo "Verse Memorization - Azure Setup Helper"
