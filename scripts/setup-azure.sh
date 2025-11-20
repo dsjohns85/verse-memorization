@@ -135,7 +135,7 @@ else
         --scopes /subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP \
         --query '{clientId: appId}' -o json)
     
-    SP_APP_ID=$(echo $SP_OUTPUT | jq -r .clientId)
+    SP_APP_ID=$(echo "$SP_OUTPUT" | jq -r .clientId)
     
     echo -e "${GREEN}✓ Service principal created${NC}"
     echo "  AZURE_CLIENT_ID: $SP_APP_ID"
