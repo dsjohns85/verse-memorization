@@ -37,14 +37,14 @@ fi
 
 cd ..
 
-# Start PostgreSQL using docker-compose
+# Start PostgreSQL using docker compose
 echo "🐘 Starting PostgreSQL database..."
-docker-compose -f .devcontainer/docker-compose.yml up -d postgres
+docker compose -f .devcontainer/docker-compose.yml up -d postgres
 
 # Wait for PostgreSQL to be ready
 echo "⏳ Waiting for PostgreSQL to be ready..."
 for i in {1..30}; do
-  if docker-compose -f .devcontainer/docker-compose.yml exec -T postgres pg_isready -U postgres > /dev/null 2>&1; then
+  if docker compose -f .devcontainer/docker-compose.yml exec -T postgres pg_isready -U postgres > /dev/null 2>&1; then
     echo "✅ PostgreSQL is ready!"
     break
   fi

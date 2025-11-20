@@ -1,12 +1,10 @@
-version: '3.8'
-
-# Override configuration for devcontainer environment
+# Docker Compose configuration for devcontainer environment
 # This file ensures PostgreSQL runs properly within GitHub Codespaces
 
 services:
   postgres:
-    # Use the same configuration as the main docker-compose.yml
-    # but with some adjustments for devcontainer environment
+    image: postgres:15-alpine
+    container_name: verse-memorization-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

@@ -52,7 +52,7 @@ cd backend && npm install && cd ..
 cd frontend && npm install && cd ..
 
 # Start PostgreSQL
-docker-compose -f .devcontainer/docker-compose.yml up -d postgres
+docker compose -f .devcontainer/docker-compose.yml up -d postgres
 
 # Generate Prisma client and run migrations
 cd backend
@@ -101,10 +101,10 @@ If PostgreSQL fails to start, try:
 docker ps -a
 
 # Restart PostgreSQL
-docker-compose -f .devcontainer/docker-compose.yml restart postgres
+docker compose -f .devcontainer/docker-compose.yml restart postgres
 
 # View logs
-docker-compose -f .devcontainer/docker-compose.yml logs postgres
+docker compose -f .devcontainer/docker-compose.yml logs postgres
 ```
 
 ### Prisma Client errors

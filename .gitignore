@@ -41,7 +41,7 @@ Thumbs.db
 *.pid.lock
 
 # Prisma
-prisma/migrations/
+# Keep migrations in version control
 
 # Logs
 logs
