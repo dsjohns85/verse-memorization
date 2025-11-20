@@ -1,6 +1,4 @@
 # Docker Compose - PostgreSQL Version
-# This setup uses PostgreSQL for a production-like environment
-# For a simpler setup with SQLite, use: docker-compose -f docker-compose.simple.yml up
 version: '3.8'
 
 services:

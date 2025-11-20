@@ -22,9 +22,35 @@ The application uses the official ESV (English Standard Version) API for automat
 
 ## Quick Start
 
-### Option 1: SQLite (Simplest - No Docker needed)
+### Using the Setup Script (Easiest)
 
-Perfect for getting started quickly or personal use:
+The fastest way to get started:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/dsjohns85/verse-memorization.git
+cd verse-memorization
+
+# 2. Run the setup script
+./setup.sh
+
+# 3. Start the app
+npm run dev
+```
+
+The setup script automatically:
+- Installs all dependencies
+- Creates SQLite database with migrations
+- Generates a secure JWT secret
+- Sets up the environment
+
+Access:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3001
+
+### Manual Setup (SQLite)
+
+If you prefer to set up manually:
 
 ```bash
 # 1. Clone the repository
@@ -52,9 +78,9 @@ Access:
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3001
 
-### Option 2: Docker with PostgreSQL (Production-like)
+### Using Docker (PostgreSQL)
 
-Use Docker Compose for a production-like setup with PostgreSQL:
+For a production-like setup with PostgreSQL:
 
 ```bash
 # Clone the repository
@@ -83,13 +109,12 @@ npm install
 # Copy and configure environment file
 cp .env.example .env
 
-# For SQLite (simplest):
-# DATABASE_PROVIDER="sqlite"
+# SQLite is configured by default:
 # DATABASE_URL="file:./dev.db"
 
 # For PostgreSQL (if you have it running):
-# DATABASE_PROVIDER="postgresql"
-# DATABASE_URL="postgresql://postgres:postgres@localhost:5432/verse_memorization"
+# 1. Copy the PostgreSQL schema: cp prisma/schema.postgresql.prisma prisma/schema.prisma
+# 2. Update DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/verse_memorization"
 
 # Generate Prisma Client
 npx prisma generate
@@ -199,15 +224,12 @@ verse-memorization/
 ### Backend (.env)
 
 ```env
-# Database - Choose one:
-
-# Option 1: SQLite (Simplest - no setup needed)
-DATABASE_PROVIDER="sqlite"
+# Database - SQLite (default, simplest)
 DATABASE_URL="file:./dev.db"
 
-# Option 2: PostgreSQL (Production-ready)
-# DATABASE_PROVIDER="postgresql"
-# DATABASE_URL="postgresql://postgres:postgres@localhost:5432/verse_memorization"
+# For PostgreSQL:
+# 1. Copy schema: cp prisma/schema.postgresql.prisma prisma/schema.prisma
+# 2. Use: DATABASE_URL="postgresql://postgres:postgres@localhost:5432/verse_memorization"
 
 NODE_ENV="development"
 PORT=3001
@@ -243,7 +265,7 @@ VITE_ESV_API_KEY=your-api-key-from-api.esv.org
 1. Make sure PostgreSQL is running
 2. Check your DATABASE_URL in backend/.env
 3. Verify the database exists: `createdb verse_memorization`
-4. Ensure DATABASE_PROVIDER is set to "postgresql"
+4. Ensure you've copied the PostgreSQL schema: `cp prisma/schema.postgresql.prisma prisma/schema.prisma`
 
 ### Port Already in Use
 
@@ -263,10 +285,9 @@ npx prisma generate
 
 ## Next Steps
 
-- [Simple Deployment Guide](./SIMPLE_DEPLOYMENT.md) - **Deploy to free cloud platforms**
 - [Development Guide](./DEVELOPMENT.md) - Learn about the development workflow
 - [API Documentation](./API.md) - Explore the REST API
-- [Azure Deployment Guide](./DEPLOYMENT.md) - Advanced: Deploy to Azure
+- [Azure Deployment Guide](./DEPLOYMENT.md) - Deploy to Azure
 
 ## Getting Help
 

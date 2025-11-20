@@ -1,11 +1,6 @@
 # Verse Memorization 📖
 
-A **simple, lightweight** full-stack TypeScript application for scripture memorization using flashcards and spaced repetition. Master Bible verses with an intelligent review system that optimizes your learning.
-
-✨ **Deploy in 5 minutes** on free platforms like Railway, Render, or Fly.io
-💰 **Zero to low cost** - Free tier options available
-🚀 **No complex setup** - Works with SQLite or PostgreSQL
-🤖 **AI-enabled** - Optional ESV API integration for automatic verse lookup
+A full-stack TypeScript application for scripture memorization using flashcards and spaced repetition. Master Bible verses with an intelligent review system that optimizes your learning.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node](https://img.shields.io/badge/node-20%2B-green.svg)
@@ -18,7 +13,7 @@ A **simple, lightweight** full-stack TypeScript application for scripture memori
 - **Progress Tracking**: Monitor your learning progress with detailed statistics
 - **Add Verses**: Easily add Bible verses with manual entry
 - **Optional ESV API**: Automatically fetch verses from the official ESV API
-- **Multiple Database Options**: SQLite (simple) or PostgreSQL (production)
+- **SQLite Database**: Simple file-based database, no server needed
 - **Simple Authentication**: Development mode for easy testing, JWT ready for production
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 
@@ -34,17 +29,14 @@ A **simple, lightweight** full-stack TypeScript application for scripture memori
 
 **Backend:**
 - Node.js with Express and TypeScript
-- SQLite (development) or PostgreSQL (production)
+- SQLite database (file-based, zero-config)
 - Prisma ORM for database access
 - Simple JWT-ready authentication
 - RESTful API design
 
-**Deployment Options:**
-- **Railway.app** - Deploy with one click (Free tier available)
-- **Render.com** - Free hosting for small projects
-- **Fly.io** - Fast global deployment (Free tier available)
-- **Docker** - Self-host on any VPS (Starting at $4/month)
-- **Azure** - Enterprise option (Advanced setup in `docs/DEPLOYMENT.md`)
+**Deployment:**
+- **Docker** - Simple container-based deployment
+- **Azure** - Static Web Apps + Container Apps (see `docs/DEPLOYMENT.md`)
 
 ### Project Structure
 
@@ -60,48 +52,17 @@ verse-memorization/
 
 ## 🚀 Quick Start
 
-### ☁️ Deploy to Free Cloud Platform (Recommended)
-
-**Deploy in 5 minutes** to Railway, Render, or Fly.io:
-
-1. Fork this repository
-2. Sign up at [Railway.app](https://railway.app) (or [Render](https://render.com))
-3. Create new project from your fork
-4. Add PostgreSQL database (or use SQLite)
-5. Deploy! 🎉
-
-📖 **See [docs/SIMPLE_DEPLOYMENT.md](./docs/SIMPLE_DEPLOYMENT.md)** for detailed step-by-step guides.
-
-### 💻 Local Development
-
-### Prerequisites
-
-- Node.js 20+ and npm 10+
-- Docker and Docker Compose (optional)
-- Git
-- **ESV API Key** (optional, free from https://api.esv.org)
-
-### Quick Start (SQLite - Simplest)
+### 💻 Local Development (Simplest)
 
 ```bash
 # Clone the repository
 git clone https://github.com/dsjohns85/verse-memorization.git
 cd verse-memorization
 
-# Install dependencies
-npm install
+# Run setup script
+./setup.sh
 
-# Set up backend with SQLite
-cd backend
-cp .env.example .env
-# Edit .env to use SQLite (already configured by default)
-npx prisma generate
-npx prisma migrate dev
-npm run dev
-
-# In a new terminal, start frontend
-cd frontend
-npm install
+# Start the app
 npm run dev
 ```
 
@@ -109,20 +70,24 @@ Access the application:
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3001
 
-### Using Docker (PostgreSQL)
+The setup script automatically:
+- Installs all dependencies
+- Creates SQLite database
+- Generates secure JWT secret
+- Sets up the development environment
+
+### Using Docker
 
 ```bash
 # Clone the repository
 git clone https://github.com/dsjohns85/verse-memorization.git
 cd verse-memorization
 
-# Start all services with PostgreSQL
+# Start all services
 docker-compose up
 ```
 
-Access the application:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:3001
+This starts the app with PostgreSQL for a production-like environment.
 
 ### GitHub Codespaces
 
@@ -133,9 +98,10 @@ Access the application:
 
 ## 📚 Documentation
 
-- [Simple Deployment Guide](./docs/SIMPLE_DEPLOYMENT.md) - **Start here!** Deploy to free platforms
-- [Getting Started Guide](./docs/GETTING_STARTED.md) - Setup and installation
+- [Getting Started Guide](./docs/GETTING_STARTED.md) - Detailed setup and installation
 - [API Documentation](./docs/API.md) - REST API reference
+- [Azure Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure
+- [Infrastructure Guide](./infra/README.md) - Azure resources
 - [Azure Deployment Guide](./docs/DEPLOYMENT.md) - Advanced: Deploy to Azure (for enterprises)
 - [Infrastructure Guide](./infra/README.md) - Advanced: Azure resources
 
