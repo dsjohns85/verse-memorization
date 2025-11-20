@@ -61,19 +61,20 @@ echo "🔄 Running database migrations..."
 cd backend
 
 # Run migrate deploy and handle errors explicitly
-npx prisma migrate deploy >deploy.log 2>&1
+DEPLOY_LOG="/tmp/deploy-$$.log"
+npx prisma migrate deploy >"$DEPLOY_LOG" 2>&1
 DEPLOY_EXIT_CODE=$?
 if [ $DEPLOY_EXIT_CODE -ne 0 ]; then
-  if grep -q "No migration found" deploy.log; then
+  if grep -q "No migration found" "$DEPLOY_LOG"; then
     echo "No migrations found, running 'prisma migrate dev --name init'..."
     npx prisma migrate dev --name init
   else
-    echo "❌ 'prisma migrate deploy' failed. See deploy.log for details:"
-    cat deploy.log
+    echo "❌ 'prisma migrate deploy' failed. See $DEPLOY_LOG for details:"
+    cat "$DEPLOY_LOG"
     exit $DEPLOY_EXIT_CODE
   fi
 fi
-rm -f deploy.log
+rm -f "$DEPLOY_LOG"
 
 cd ..
 

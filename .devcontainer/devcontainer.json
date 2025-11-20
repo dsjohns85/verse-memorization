@@ -24,6 +24,7 @@
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.codeActionsOnSave": {
+          // 'explicit' replaces the deprecated boolean value for 'source.fixAll.eslint' (see VS Code recommendations)
           "source.fixAll.eslint": "explicit"
         }
       }
