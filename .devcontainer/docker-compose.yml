@@ -1,0 +1,23 @@
+# Docker Compose configuration for devcontainer environment
+# This file ensures PostgreSQL runs properly within GitHub Codespaces
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: verse-memorization-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: verse_memorization
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
