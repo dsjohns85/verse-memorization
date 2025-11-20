@@ -121,7 +121,7 @@ resource backendContainerApp 'Microsoft.App/containerApps@2023-05-01' = {
         }
         {
           name: 'database-url'
-          value: '******${postgresServer.properties.fullyQualifiedDomainName}:5432/verse_memorization'
+          value: 'postgresql://dbadmin:${databasePassword}@${postgresServer.properties.fullyQualifiedDomainName}:5432/verse_memorization'
         }
       ]
     }
