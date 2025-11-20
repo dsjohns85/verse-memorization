@@ -3,7 +3,7 @@
 # Configuration Validation Script
 # This script checks if all required Azure configurations are in place
 
-set -e
+set -euo pipefail
 
 echo "==========================================="
 echo "Azure Configuration Validator"
