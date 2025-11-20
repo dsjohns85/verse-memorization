@@ -1,4 +1,5 @@
 #!/bin/bash
+# This file must be executable: chmod +x .devcontainer/setup.sh
 set -e
 
 echo "🚀 Setting up Verse Memorization development environment..."
