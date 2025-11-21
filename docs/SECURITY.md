@@ -53,9 +53,9 @@ No critical security vulnerabilities were found in the codebase.
 ### Data Protection
 
 ✅ **SQL Injection Prevention**
-- Prisma ORM used for all database queries
-- Parameterized queries by default
-- No raw SQL execution in application code
+- Direct SQL queries with parameterized statements
+- Better-sqlite3 library for safe database operations
+- No string concatenation for SQL queries
 
 ✅ **Input Validation**
 - Server-side validation for all API endpoints
@@ -118,8 +118,6 @@ Before deploying to production, ensure:
 2. **Development Authentication**: Uses simple header-based auth. Should not be enabled in production.
 
 3. **Secrets Management**: Uses environment variables. Should migrate to Azure Key Vault for production.
-
-4. **Database Password**: Example password in Bicep templates. Must use Key Vault in production.
 
 ## Security Best Practices Followed
 

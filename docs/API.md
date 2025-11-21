@@ -4,8 +4,8 @@ The Verse Memorization API provides endpoints for managing verses, reviews, and 
 
 ## Base URL
 
-- **Development**: `http://localhost:3001`
-- **Production**: `https://your-container-app-url.azurecontainerapps.io`
+- **Development**: `http://localhost:7071`
+- **Production**: `https://your-static-web-app.azurestaticapps.net`
 
 ## Authentication
 

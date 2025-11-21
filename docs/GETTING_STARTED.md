@@ -68,8 +68,6 @@ verse-memorization/
 ├── api/                   # Azure Functions
 │   ├── health/
 │   ├── verses/
-│   ├── reviews/
-│   ├── users/
 │   └── host.json
 ├── .devcontainer/         # Codespaces configuration
 └── docs/                  # Documentation

@@ -42,8 +42,7 @@ A full-stack TypeScript application for scripture memorization using flashcards 
 ```
 verse-memorization/
 ├── frontend/          # React + Vite frontend application
-├── backend/           # Node.js + Express API server
-├── infra/             # Azure Bicep infrastructure templates
+├── api/               # Azure Functions API
 ├── .devcontainer/     # GitHub Codespaces configuration
 ├── .github/workflows/ # CI/CD pipelines
 └── docs/              # Comprehensive documentation
@@ -82,7 +81,6 @@ See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for complete step-by-step instruc
 - [Getting Started Guide](./docs/GETTING_STARTED.md) - Detailed setup and installation
 - [API Documentation](./docs/API.md) - REST API reference
 - [Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure Static Web Apps
-- [Infrastructure Guide](./infra/README.md) - Optional: Bicep/IaC templates
 - [Development Guide](./docs/DEVELOPMENT.md) - Development workflow
 - [Security Guide](./docs/SECURITY.md) - Security best practices
 
@@ -91,9 +89,6 @@ See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for complete step-by-step instruc
 ```bash
 # Run all tests
 npm test
-
-# Run backend tests
-cd backend && npm test
 
 # Run frontend tests
 cd frontend && npm test
@@ -148,7 +143,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - SuperMemo 2 algorithm by Piotr Wozniak
 - React and Vite communities
-- Prisma team for the excellent ORM
 - Azure team for cloud infrastructure
 
 ## 📞 Support

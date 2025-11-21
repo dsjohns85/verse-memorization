@@ -9,7 +9,6 @@ This guide covers best practices, conventions, and workflows for developing the 
 - **Visual Studio Code** with extensions:
   - ESLint
   - Prettier
-  - Prisma
   - Docker
   - Azure Tools
   - TypeScript and JavaScript Language Features
@@ -28,17 +27,13 @@ This guide covers best practices, conventions, and workflows for developing the 
    ```
 
 2. **Configure Environment Variables**
-   - Copy `.env.example` to `.env` in both `frontend` and `backend` directories
+   - Copy `.env.example` to `.env` in the `frontend` directory if needed
    - Update values for your local environment
 
 3. **Start Development Servers**
    ```bash
-   # Option 1: Use Docker Compose (recommended)
-   docker-compose up
-
-   # Option 2: Run services individually
-   # Terminal 1 - Backend
-   cd backend && npm run dev
+   # Terminal 1 - API (Azure Functions)
+   cd api && npm run start
 
    # Terminal 2 - Frontend
    cd frontend && npm run dev
@@ -109,28 +104,21 @@ npm run lint -- --fix
 
 ## Project Architecture
 
-### Backend Architecture
+### API Architecture (Azure Functions)
 
 ```
-backend/
-├── src/
-│   ├── config/         # Configuration (database, etc.)
-│   ├── controllers/    # Request handlers
-│   ├── middleware/     # Express middleware
-│   ├── routes/         # API route definitions
-│   ├── services/       # Business logic
-│   ├── types/          # TypeScript type definitions
-│   └── index.ts        # Application entry point
-└── prisma/
-    ├── schema.prisma   # Database schema
-    └── seed.ts         # Database seeding
+api/
+├── health/            # Health check endpoint
+├── verses/            # Verse management endpoints
+├── host.json          # Azure Functions configuration
+├── package.json
+└── tsconfig.json
 ```
 
-**Layered Architecture:**
-1. **Routes**: Define endpoints and call controllers
-2. **Controllers**: Handle requests, call services, return responses
-3. **Services**: Contain business logic, interact with database
-4. **Prisma**: ORM for database access
+**Serverless Architecture:**
+1. **Azure Functions**: HTTP-triggered serverless functions
+2. **SQLite Database**: File-based database with better-sqlite3
+3. **Simple Authentication**: Development mode for testing, JWT ready for production
 
 ### Frontend Architecture
 
@@ -155,93 +143,72 @@ frontend/
 
 ## Database Management
 
-### Prisma Workflow
-
-1. **Modify Schema**
-   ```prisma
-   // prisma/schema.prisma
-   model NewModel {
-     id String @id @default(cuid())
-     // fields...
-   }
-   ```
-
-2. **Create Migration**
-   ```bash
-   cd backend
-   npx prisma migrate dev --name add_new_model
-   ```
-
-3. **Generate Client**
-   ```bash
-   npx prisma generate
-   ```
-
-4. **Update Services**
-   Use the new model in your service files
-
-### Database Seeding
-
-Add seed data in `backend/prisma/seed.ts`:
+The application uses SQLite with better-sqlite3 for direct SQL queries:
 
 ```typescript
-async function main() {
-  await prisma.user.create({
-    data: {
-      email: 'test@example.com',
-      name: 'Test User',
-    },
-  });
-}
+import Database from 'better-sqlite3';
+
+const db = new Database('verses.db');
+
+// Example query
+const verses = db.prepare('SELECT * FROM verses WHERE userId = ?').all(userId);
 ```
 
-Run seed:
-```bash
-npm run prisma:seed
-```
-
-### Prisma Studio
-
-View and edit database data with Prisma Studio:
-
-```bash
-cd backend
-npx prisma studio
-```
-
-Opens at http://localhost:5555
+For Azure deployment, the SQLite file is stored in Azure Storage and mounted to the Functions runtime.
 
 ## API Development
 
-### Creating a New Endpoint
+### Creating a New Azure Function Endpoint
 
-1. **Define Service Method** (`backend/src/services/`)
-   ```typescript
-   export class MyService {
-     async getItem(id: string) {
-       return await prisma.item.findUnique({ where: { id } });
-     }
+1. **Create Function Directory**
+   ```bash
+   mkdir api/my-endpoint
+   ```
+
+2. **Create function.json**
+   ```json
+   {
+     "bindings": [
+       {
+         "authLevel": "anonymous",
+         "type": "httpTrigger",
+         "direction": "in",
+         "name": "req",
+         "methods": ["get", "post"],
+         "route": "my-endpoint"
+       },
+       {
+         "type": "http",
+         "direction": "out",
+         "name": "res"
+       }
+     ]
    }
    ```
 
-2. **Create Controller** (`backend/src/controllers/`)
+3. **Create index.ts**
    ```typescript
-   export const getItem = async (req: AuthRequest, res: Response) => {
-     const { id } = req.params;
-     const item = await myService.getItem(id);
-     res.json(item);
-   };
-   ```
+   import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 
-3. **Add Route** (`backend/src/routes/`)
-   ```typescript
-   router.get('/:id', authenticate, getItem);
+   export async function myEndpoint(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+     context.log('Processing request');
+     return {
+       status: 200,
+       jsonBody: { message: 'Success' }
+     };
+   }
+
+   app.http('myEndpoint', {
+     methods: ['GET', 'POST'],
+     authLevel: 'anonymous',
+     handler: myEndpoint
+   });
    ```
 
 4. **Update Frontend Service** (`frontend/src/services/api.ts`)
    ```typescript
-   async getItem(id: string): Promise<Item> {
-     return this.request<Item>(`/api/items/${id}`);
+   async getMyData(): Promise<Data> {
+     return this.request<Data>(`/api/my-endpoint`);
    }
    ```
 
@@ -330,28 +297,24 @@ Or use CSS classes defined in `index.css` or `App.css`.
 
 ## Testing
 
-### Backend Tests
+### API Tests
 
-Create tests in `backend/src/__tests__/`:
+Create tests in `api/__tests__/`:
 
 ```typescript
-describe('VerseService', () => {
-  it('should create a verse', async () => {
-    const verse = await verseService.createVerse({
-      reference: 'John 3:16',
-      text: 'For God so loved...',
-      userId: 'test-user',
-    });
+describe('Verse Functions', () => {
+  it('should return verses', async () => {
+    const result = await getVerses(mockRequest, mockContext);
     
-    expect(verse).toBeDefined();
-    expect(verse.reference).toBe('John 3:16');
+    expect(result.status).toBe(200);
+    expect(result.jsonBody).toBeDefined();
   });
 });
 ```
 
 Run tests:
 ```bash
-cd backend
+cd api
 npm test
 ```
 
@@ -399,12 +362,16 @@ node --inspect-brk dist/index.js
 
 ### Database Debugging
 
-Enable Prisma query logging:
-```typescript
-const prisma = new PrismaClient({
-  log: ['query', 'error', 'warn'],
-});
+View SQLite database with a SQLite browser:
+```bash
+# Install sqlite3 CLI
+npm install -g sqlite3
+
+# Open database
+sqlite3 verses.db
 ```
+
+Or use a GUI tool like DB Browser for SQLite.
 
 ## Git Workflow
 
@@ -439,9 +406,9 @@ Types:
 
 Example:
 ```
-feat(backend): add verse search endpoint
+feat(api): add verse search endpoint
 
-Implement full-text search for verses using PostgreSQL
+Implement full-text search for verses using SQLite
 full-text search capabilities.
 
 Closes #123
@@ -465,7 +432,7 @@ Closes #123
 - Use database indexes for frequently queried fields
 - Implement caching for expensive operations
 - Use pagination for large result sets
-- Optimize Prisma queries with `select` and `include`
+- Optimize SQL queries with proper indexes and EXPLAIN
 
 ### Frontend
 
@@ -478,7 +445,7 @@ Closes #123
 
 - Never commit secrets or credentials
 - Validate all user input
-- Use parameterized queries (Prisma does this)
+- Use parameterized queries to prevent SQL injection
 - Implement rate limiting
 - Use HTTPS in production
 - Keep dependencies updated
@@ -539,25 +506,19 @@ function useVerses() {
 1. **Port already in use**
    ```bash
    # Find process using port
-   lsof -i :3001
+   lsof -i :7071
    # Kill process
    kill -9 <PID>
    ```
 
-2. **Prisma Client not generated**
-   ```bash
-   cd backend
-   npx prisma generate
-   ```
-
-3. **Module not found**
+2. **Module not found**
    ```bash
    # Clear node_modules and reinstall
    rm -rf node_modules package-lock.json
    npm install
    ```
 
-4. **TypeScript errors**
+3. **TypeScript errors**
    ```bash
    # Restart TypeScript server in VS Code
    Cmd/Ctrl + Shift + P → "TypeScript: Restart TS Server"
@@ -567,9 +528,8 @@ function useVerses() {
 
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [React Documentation](https://react.dev/)
-- [Express.js Guide](https://expressjs.com/en/guide/routing.html)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [Azure Documentation](https://docs.microsoft.com/azure/)
+- [Azure Functions Documentation](https://docs.microsoft.com/azure/azure-functions/)
+- [Azure Static Web Apps Documentation](https://docs.microsoft.com/azure/static-web-apps/)
 
 ## Getting Help
 
