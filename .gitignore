@@ -42,6 +42,10 @@ Thumbs.db
 
 # Prisma
 # Keep migrations in version control
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
 
 # Logs
 logs

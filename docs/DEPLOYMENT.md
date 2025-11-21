@@ -1,350 +1,297 @@
 # Deployment Guide
 
-This guide covers deploying the Verse Memorization application to Azure.
+This guide covers deploying the Verse Memorization application to Azure using **Azure Static Web Apps with integrated Functions**.
+
+## Architecture
+
+The simplified architecture uses:
+- **Azure Static Web App**: Hosts React frontend + Azure Functions backend (integrated)
+- **Azure Storage Account**: Stores SQLite database file
+- **No containers, no registry, no complex orchestration**
+
+**Cost**: Free tier ($0/month) or Standard ($9/month)
 
 ## Prerequisites
 
 - Azure account with active subscription
-- Azure CLI installed and configured
-- Docker installed (for building images)
-- GitHub repository with secrets configured
+- Azure CLI installed: `az --version`
+- GitHub repository access
+- Node.js 18+ for local testing
 
-## Architecture Overview
+## Deployment Options
 
-The application uses the following Azure services:
+### Option 1: Azure Portal (Recommended - Simplest)
 
-- **Azure Static Web Apps**: Hosts the React frontend
-- **Azure Container Apps**: Hosts the Node.js backend
-- **Azure Database for PostgreSQL**: Stores application data
-- **Azure Container Registry**: Stores Docker images
-- **Azure Log Analytics**: Monitoring and logging
+This is the easiest way - Azure handles everything automatically.
 
-## Manual Deployment
+#### Steps:
 
-### 1. Deploy Infrastructure
+1. **Create Static Web App in Azure Portal**
+   - Go to [Azure Portal](https://portal.azure.com)
+   - Click "Create a resource" → "Static Web App"
+   - Fill in details:
+     - **Name**: `verse-memorization`
+     - **Region**: East US 2 (or closest to you)
+     - **SKU**: Free (or Standard if needed)
+     - **Deployment**: GitHub
+   - Click "Sign in with GitHub" and authorize
+
+2. **Configure Build Settings**
+   - **Organization**: Your GitHub username/org
+   - **Repository**: `verse-memorization`
+   - **Branch**: `main`
+   - **Build Presets**: Custom
+   - **App location**: `frontend`
+   - **Api location**: `api`
+   - **Output location**: `dist`
+
+3. **Click "Review + Create" then "Create"**
+
+4. **Azure automatically**:
+   - Creates a GitHub Action workflow in your repo
+   - Adds deployment token as a GitHub secret
+   - Builds and deploys your app
+   - Sets up global CDN
+   - Provisions SSL certificate
+   - Creates PR preview environments
+
+That's it! Every push to `main` automatically deploys.
+
+### Option 2: Azure CLI
+
+For those who prefer command line:
 
 ```bash
 # Login to Azure
 az login
 
-# Set your subscription
-az account set --subscription "Your Subscription Name"
+# Create resource group
+az group create \
+  --name rg-verse-memorization \
+  --location eastus2
 
-# Deploy Bicep templates
+# Create Static Web App with GitHub integration
+az staticwebapp create \
+  --name verse-memorization \
+  --resource-group rg-verse-memorization \
+  --source https://github.com/YOUR-USERNAME/verse-memorization \
+  --location eastus2 \
+  --branch main \
+  --app-location "frontend" \
+  --api-location "api" \
+  --output-location "dist" \
+  --login-with-github
+```
+
+This creates the app and connects it to your GitHub repository.
+
+### Option 3: Infrastructure as Code (Bicep)
+
+For repeatable deployments:
+
+```bash
+# Deploy using Bicep template
 cd infra
 az deployment sub create \
-  --location eastus \
-  --template-file main.bicep \
-  --parameters environment=prod
+  --location eastus2 \
+  --template-file main-staticwebapp.bicep \
+  --parameters resourceGroupName=rg-verse-memorization
 ```
 
-This will create all necessary Azure resources.
+The Bicep templates in `/infra` create:
+- Static Web App with GitHub integration
+- Storage account for SQLite database
+- All necessary configuration
 
-### 2. Configure Secrets
+## Configuration
 
-After deployment, you'll need to update the following:
+### Environment Variables
 
-#### Backend Environment Variables
+Set these in Azure Portal → Your Static Web App → Configuration:
 
-In Azure Container Apps, configure these environment variables:
+```
+DATABASE_PATH=/mnt/database/verses.db
+NODE_ENV=production
+JWT_SECRET=<generate-secure-random-string>
+```
 
-- `DATABASE_URL`: PostgreSQL connection string (auto-configured)
-- `NODE_ENV`: production
-- `JWT_SECRET`: Generate a strong secret
-- `AZURE_AD_B2C_TENANT_NAME`: Your Azure AD B2C tenant
-- `AZURE_AD_B2C_CLIENT_ID`: Your app registration client ID
-- `AZURE_AD_B2C_POLICY_NAME`: Your sign-in policy name
+To generate a secure JWT secret:
+```bash
+openssl rand -base64 32
+```
 
-#### Frontend Environment Variables
+### Storage for SQLite Database
 
-In Azure Static Web Apps, configure:
+The SQLite file is stored in Azure Storage (mounted to Functions):
 
-- `VITE_API_URL`: Your Container App URL
-- `VITE_AZURE_AD_CLIENT_ID`: Your app registration client ID
-- `VITE_AZURE_AD_AUTHORITY`: Your B2C authority URL
+1. Go to Azure Portal → Your Storage Account
+2. Create a file share named `database`
+3. In Static Web App settings, mount the file share to `/mnt/database`
 
-### 3. Build and Push Backend Image
+## CI/CD Pipeline
+
+Azure automatically creates `.github/workflows/azure-static-web-apps-*.yml` when you connect to GitHub.
+
+**What it does**:
+- Triggers on push to `main`
+- Builds frontend (React + Vite)
+- Builds API (Azure Functions)
+- Deploys both together
+- Creates preview environments for PRs
+
+**No custom GitHub Actions needed** - Azure manages everything.
+
+### Preview Environments
+
+Every PR automatically gets a preview URL:
+- Format: `https://[unique-id].azurestaticapps.net`
+- Full environment with API
+- Automatically deleted when PR is closed
+
+## Local Testing
+
+Before deploying, test locally:
 
 ```bash
-# Get ACR credentials
-az acr credential show --name <your-acr-name>
+# Terminal 1: Start API
+cd api
+npm install
+npm run build
+func start
 
-# Login to ACR
-az acr login --name <your-acr-name>
-
-# Build and push backend image
-cd backend
-docker build -t <your-acr-name>.azurecr.io/verse-memorization-backend:latest .
-docker push <your-acr-name>.azurecr.io/verse-memorization-backend:latest
+# Terminal 2: Start Frontend
+cd frontend
+npm install
+npm run dev
 ```
 
-### 4. Update Container App
+Access at:
+- Frontend: http://localhost:5173
+- API: http://localhost:7071
 
-```bash
-az containerapp update \
-  --name verse-memorization-backend-prod \
-  --resource-group rg-verse-memorization \
-  --image <your-acr-name>.azurecr.io/verse-memorization-backend:latest
-```
-
-### 5. Run Database Migrations
-
-```bash
-# Connect to your Container App
-az containerapp exec \
-  --name verse-memorization-backend-prod \
-  --resource-group rg-verse-memorization \
-  --command /bin/sh
-
-# Inside the container
-npx prisma migrate deploy
-```
-
-### 6. Deploy Frontend
-
-The frontend is deployed via GitHub Actions (see CI/CD section below).
-
-## CI/CD with GitHub Actions
-
-The repository includes GitHub Actions workflows for automated deployment.
-
-### Setup GitHub Secrets
-
-Configure these secrets in your GitHub repository:
-
-#### Recommended: OIDC Authentication (Federated Identity)
-
-For enhanced security, use OIDC authentication instead of long-lived credentials:
-
-1. **Create Federated Identity Credentials**:
-   ```bash
-   # Create service principal
-   az ad sp create-for-rbac \
-     --name "verse-memorization-sp" \
-     --role contributor \
-     --scopes /subscriptions/{subscription-id}/resourceGroups/rg-verse-memorization
-   
-   # Note the appId, then create federated credential
-   az ad app federated-credential create \
-     --id <app-id> \
-     --parameters '{
-       "name": "github-deploy",
-       "issuer": "https://token.actions.githubusercontent.com",
-       "subject": "repo:dsjohns85/verse-memorization:ref:refs/heads/main",
-       "audiences": ["api://AzureADTokenExchange"]
-     }'
-   ```
-
-2. **Configure GitHub Secrets** (Variables, not secrets):
-   - `AZURE_CLIENT_ID`: Application (client) ID from the service principal
-   - `AZURE_TENANT_ID`: Your Azure tenant ID
-   - `AZURE_SUBSCRIPTION_ID`: Your Azure subscription ID
-
-3. **ACR_USERNAME**: Container Registry username
-   ```bash
-   az acr credential show --name <your-acr-name> --query username -o tsv
-   ```
-
-4. **ACR_PASSWORD**: Container Registry password
-   ```bash
-   az acr credential show --name <your-acr-name> --query passwords[0].value -o tsv
-   ```
-
-5. **AZURE_STATIC_WEB_APPS_API_TOKEN**: Get from Static Web App
-   ```bash
-   az staticwebapp secrets list \
-     --name verse-memorization-frontend-prod \
-     --query properties.apiKey -o tsv
-   ```
-
-#### Alternative: Service Principal with Credentials (Not Recommended)
-
-If you prefer traditional authentication (not recommended for security reasons):
-
-1. **AZURE_CREDENTIALS**: Service principal credentials
-   ```bash
-   az ad sp create-for-rbac \
-     --name "verse-memorization-sp" \
-     --role contributor \
-     --scopes /subscriptions/{subscription-id}/resourceGroups/rg-verse-memorization \
-     --sdk-auth
-   ```
-   Copy the JSON output to the secret.
-
-**Note**: The deployment workflow in `.github/workflows/deploy.yml` is already configured to use OIDC authentication with `azure/login@v2`.
-
-### Automated Deployment
-
-Once secrets are configured:
-
-1. **On Pull Request**: CI workflow runs tests and builds
-2. **On Push to Main**: Deploy workflow runs and deploys to production
-
-## Azure AD B2C Setup
-
-### 1. Create Azure AD B2C Tenant
-
-1. Go to Azure Portal
-2. Create a new Azure AD B2C tenant
-3. Note the tenant name
-
-### 2. Register Application
-
-1. In B2C tenant, go to "App registrations"
-2. Click "New registration"
-3. Set name: "Verse Memorization"
-4. Set redirect URI: `https://<your-frontend-url>/auth/callback`
-5. Note the Application (client) ID
-
-### 3. Configure User Flows
-
-1. Go to "User flows" in B2C
-2. Create a new "Sign up and sign in" flow
-3. Name it: `B2C_1_signupsignin`
-4. Select identity providers:
-   - Email signup
-   - Apple (configure Apple ID)
-5. Configure user attributes and claims
-
-### 4. Update Application Configuration
-
-Update the environment variables in both frontend and backend with your B2C configuration.
-
-## Monitoring and Logging
+## Monitoring
 
 ### View Logs
 
-```bash
-# Backend logs
-az containerapp logs show \
-  --name verse-memorization-backend-prod \
-  --resource-group rg-verse-memorization \
-  --follow
+Azure Portal → Your Static Web App → Application Insights:
+- Request traces
+- Failed requests
+- Performance metrics
+- Custom events
 
-# Frontend logs
-az staticwebapp show \
-  --name verse-memorization-frontend-prod \
-  --resource-group rg-verse-memorization
-```
+### Function Logs
 
-### Application Insights
-
-The application uses Log Analytics for monitoring. To view metrics:
-
-1. Go to Azure Portal
-2. Navigate to your Container App
-3. Click "Logs" or "Metrics"
+Azure Portal → Your Static Web App → Functions:
+- View individual function execution logs
+- Monitor performance
+- Track errors
 
 ## Scaling
 
-### Backend Scaling
+### Free Tier Limits
+- 100 GB bandwidth/month
+- 2 custom domains
+- No SLA
 
-Container Apps automatically scale based on:
-- HTTP traffic
-- CPU usage
-- Memory usage
+### Standard Tier ($9/month)
+- Unlimited bandwidth
+- Unlimited custom domains
+- 99.95% SLA
+- Staging environments
 
-Configure scaling in the Bicep template or via Azure Portal.
+Functions auto-scale based on demand (included in both tiers).
 
-### Database Scaling
+## Custom Domain
 
-To scale the PostgreSQL database:
-
-```bash
-az postgres flexible-server update \
-  --resource-group rg-verse-memorization \
-  --name <your-db-name> \
-  --sku-name Standard_D2ds_v4 \
-  --tier GeneralPurpose
-```
-
-## Backup and Recovery
-
-### Database Backups
-
-Azure PostgreSQL Flexible Server automatically creates backups:
-- Retention: 7 days (configurable)
-- Point-in-time restore available
-
-To restore:
-
-```bash
-az postgres flexible-server restore \
-  --resource-group rg-verse-memorization \
-  --name <restored-server-name> \
-  --source-server <source-server-name> \
-  --restore-time "2025-11-19T14:00:00Z"
-```
-
-## Security Considerations
-
-### Production Checklist
-
-- [ ] Use Azure Key Vault for secrets
-- [ ] Enable managed identities
-- [ ] Configure network security groups
-- [ ] Enable private endpoints for database
-- [ ] Use strong, randomly generated passwords
-- [ ] Enable Azure AD authentication
-- [ ] Set up HTTPS only
-- [ ] Configure CORS properly
-- [ ] Enable application firewall
-- [ ] Set up monitoring and alerts
-
-## Cost Optimization
-
-### Development Environment
-
-- Use Free tier for Static Web Apps
-- Use Burstable tier for PostgreSQL
-- Use Basic tier for Container Registry
-- Scale Container Apps to 0-1 replicas
-
-### Production Environment
-
-- Use Standard tier for Static Web Apps (if needed)
-- Use General Purpose tier for PostgreSQL
-- Use Standard tier for Container Registry
-- Configure auto-scaling for Container Apps
+1. Azure Portal → Your Static Web App → Custom domains
+2. Click "Add"
+3. Enter your domain name
+4. Follow DNS configuration instructions
+5. Azure automatically provisions SSL certificate
 
 ## Troubleshooting
 
-### Common Issues
+### Build Failures
 
-1. **Database Connection Issues**
-   - Check firewall rules
-   - Verify connection string
-   - Ensure database is running
+Check GitHub Actions tab in your repository:
+- View build logs
+- Look for npm install errors
+- Verify `package.json` in both `frontend/` and `api/` folders
 
-2. **Container App Not Starting**
-   - Check logs: `az containerapp logs show`
-   - Verify environment variables
-   - Check image exists in registry
+### API Not Working
 
-3. **Frontend Not Loading**
-   - Verify API URL is correct
-   - Check CORS configuration
-   - Verify Static Web App deployment
+1. Check API location is set to `api` in portal
+2. Verify `host.json` exists in api folder
+3. Check function logs in Azure Portal
+4. Ensure environment variables are set
+
+### Database Issues
+
+1. Verify storage account is created
+2. Check file share `database` exists
+3. Ensure file share is mounted to `/mnt/database`
+4. Check `DATABASE_PATH` environment variable
+
+### CORS Errors
+
+Static Web Apps handle CORS automatically for integrated APIs. If you see CORS errors:
+1. Verify API location is correct (`api`)
+2. Check `staticwebapp.config.json` routing configuration
 
 ## Rollback
 
 To rollback to a previous version:
 
-```bash
-# Rollback Container App
-az containerapp revision list \
-  --name verse-memorization-backend-prod \
-  --resource-group rg-verse-memorization
+1. Go to GitHub → Actions
+2. Find the successful deployment you want to restore
+3. Re-run that workflow
 
-az containerapp revision activate \
-  --revision <revision-name> \
-  --resource-group rg-verse-memorization
+Or revert the commit:
+```bash
+git revert <commit-hash>
+git push
 ```
+
+## Cost Optimization
+
+### Free Tier (Recommended for Personal Use)
+- **Static Web App**: Free
+- **Functions**: 1M requests/month free
+- **Storage**: First 5 GB free
+- **Total**: $0/month
+
+### Standard Tier (For Production)
+- **Static Web App**: $9/month
+- **Functions**: ~$0.20 per million requests
+- **Storage**: ~$0.02/GB/month
+- **Total**: ~$10-15/month
+
+Compare to previous approach:
+- **Container Apps**: $30-40/month
+- **Container Registry**: $5/month
+- **PostgreSQL**: $15-20/month
+- **Previous Total**: $50+/month
+
+**Savings: 80-100%**
+
+## Security
+
+- HTTPS enforced automatically
+- Managed SSL certificates
+- Functions isolated per request
+- Azure AD authentication available (if needed)
+- Environment variables encrypted at rest
 
 ## Next Steps
 
+- Set up custom domain
+- Configure authentication (if needed)
 - Set up monitoring alerts
-- Configure custom domain
-- Enable CDN for frontend
-- Set up staging environment
-- Configure automated backups
+- Enable Application Insights
+- Configure backup strategy for SQLite file
+
+## Support
+
+- Azure Static Web Apps docs: https://learn.microsoft.com/azure/static-web-apps/
+- Azure Functions docs: https://learn.microsoft.com/azure/azure-functions/
+- GitHub Issues: https://github.com/dsjohns85/verse-memorization/issues

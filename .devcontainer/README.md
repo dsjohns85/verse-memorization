@@ -1,126 +1,121 @@
-# Development Container Configuration
+# Development Container
 
 This directory contains the configuration for GitHub Codespaces and VS Code Dev Containers.
 
-## Files
+## What's Included
 
-- **devcontainer.json** - Main configuration file for the dev container
-- **Dockerfile** - Custom Docker image with Node.js 20, PostgreSQL client tools, and required dependencies
-- **docker-compose.yml** - PostgreSQL service configuration for the development environment
-- **setup.sh** - Automated setup script that runs after container creation
+- Node.js 20
+- Azure CLI
+- Azure Functions Core Tools
+- GitHub CLI
+- VS Code extensions for Azure Functions, TypeScript, and ESLint
 
-## What Happens on Container Creation
+## Quick Start
 
-When you open this repository in GitHub Codespaces or VS Code Dev Containers:
+### GitHub Codespaces (Recommended)
 
-1. A custom Docker container is built with Node.js 20 and PostgreSQL client tools
-2. Docker-in-Docker is enabled for running services
-3. The setup.sh script automatically:
-   - Installs all npm dependencies (root, backend, frontend)
-   - Generates Prisma client
-   - Starts PostgreSQL database in a container
-   - Runs database migrations
+1. Click "Code" → "Codespaces" → "Create codespace on main"
+2. Wait for setup to complete (~2-3 minutes)
+3. Azure Functions API starts automatically on port 7071
+4. Start frontend: `cd frontend && npm run dev`
 
-## Port Forwarding
+### VS Code Dev Containers
 
-The following ports are automatically forwarded:
+1. Install Docker Desktop
+2. Install "Dev Containers" extension in VS Code
+3. Open this repository in VS Code
+4. Click "Reopen in Container" when prompted
 
-- **5173** - Frontend (Vite dev server)
-- **3001** - Backend API (Express server)
-- **5432** - PostgreSQL database
+## What Happens Automatically
 
-## VS Code Extensions
+- All dependencies are installed
+- Azure Functions Core Tools configured
+- API starts automatically on port 7071
+- Ports 5173 (frontend) and 7071 (API) are forwarded
 
-The following extensions are automatically installed:
+## Development Workflow
 
-- ESLint
-- Prettier
-- Prisma
-- Docker
-- Azure Tools
-- TypeScript
-- Tailwind CSS
+### Starting Services
 
-## Manual Setup (if needed)
+API (Azure Functions):
+- Starts automatically
+- Access at http://localhost:7071
+- Logs appear in terminal
 
-If the automatic setup fails, you can manually run:
-
+Frontend:
 ```bash
-# Install dependencies
-npm install
-cd backend && npm install && cd ..
-cd frontend && npm install && cd ..
-
-# Start PostgreSQL
-docker compose -f .devcontainer/docker-compose.yml up -d postgres
-
-# Generate Prisma client and run migrations
-cd backend
-npx prisma generate
-npx prisma migrate dev
-```
-
-## Starting Development Servers
-
-After setup is complete:
-
-```bash
-# Start both frontend and backend
+cd frontend
 npm run dev
-
-# Or start individually
-npm run dev:frontend  # Frontend only
-npm run dev:backend   # Backend only
 ```
 
-## Database Access
-
-The PostgreSQL database is accessible at:
-
-- **Host**: localhost
-- **Port**: 5432
-- **Database**: verse_memorization
-- **User**: postgres
-- **Password**: postgres
-
-You can use the Prisma Studio to view and edit data:
+### Testing API
 
 ```bash
-cd backend
-npx prisma studio
+# Health check
+curl http://localhost:7071/api/health
+
+# Get verses
+curl http://localhost:7071/api/verses \
+  -H "x-user-email: test@example.com"
 ```
+
+### Database
+
+SQLite database is created automatically in `api/data/verses.db`.
+
+View/edit:
+```bash
+cd api
+sqlite3 data/verses.db
+```
+
+## Ports
+
+- **5173**: Frontend (React app)
+- **7071**: API (Azure Functions)
+
+## Extensions
+
+The following VS Code extensions are automatically installed:
+
+- **Azure Functions**: Manage and deploy Functions
+- **ESLint**: Code linting
+- **Prettier**: Code formatting
+- **Bicep**: Infrastructure as Code
+- **TypeScript**: Enhanced TypeScript support
 
 ## Troubleshooting
 
-### PostgreSQL not starting
+### API Not Starting
 
-If PostgreSQL fails to start, try:
+Check the terminal for errors. Common issues:
+- Port 7071 already in use
+- Missing dependencies (run `cd api && npm install`)
 
-```bash
-# Check container status
-docker ps -a
-
-# Restart PostgreSQL
-docker compose -f .devcontainer/docker-compose.yml restart postgres
-
-# View logs
-docker compose -f .devcontainer/docker-compose.yml logs postgres
-```
-
-### Prisma Client errors
-
-If you see Prisma Client errors:
+### Frontend Not Starting
 
 ```bash
-cd backend
-npx prisma generate
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+npm run dev
 ```
 
-### Port conflicts
+### Database Issues
 
-If ports are already in use, you can modify the port forwarding in devcontainer.json or stop conflicting services.
+The database is created automatically. To reset:
+```bash
+rm api/data/verses.db
+# Restart API - it will recreate the database
+```
 
-## More Information
+## Environment Variables
 
-- [VS Code Dev Containers Documentation](https://code.visualstudio.com/docs/devcontainers/containers)
-- [GitHub Codespaces Documentation](https://docs.github.com/en/codespaces)
+Set in Azure Portal for production deployment. For local development, defaults are used.
+
+## Files
+
+- `devcontainer.json`: Dev container configuration
+- `Dockerfile`: Container image definition
+- `setup.sh`: Initialization script
+- `docker-compose.yml`: Services configuration (unused in Codespaces)

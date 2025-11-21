@@ -1,6 +1,6 @@
 # Verse Memorization 📖
 
-A full-stack TypeScript application for scripture memorization using flashcards and spaced repetition. Master Bible verses with an intelligent review system that optimizes your learning. Features integration with the official **ESV (English Standard Version) API** for automatic verse lookup and accurate text retrieval.
+A full-stack TypeScript application for scripture memorization using flashcards and spaced repetition. Master Bible verses with an intelligent review system that optimizes your learning.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node](https://img.shields.io/badge/node-20%2B-green.svg)
@@ -8,13 +8,13 @@ A full-stack TypeScript application for scripture memorization using flashcards 
 
 ## 🌟 Features
 
-- **ESV API Integration**: Automatically fetch verses from the official ESV API
-- **Add Verses**: Easily add Bible verses with automatic lookup or manual entry
 - **Flashcard Review**: Practice verses using an intuitive flashcard interface
 - **Spaced Repetition**: Smart algorithm (SM-2) schedules optimal review times
 - **Progress Tracking**: Monitor your learning progress with detailed statistics
-- **Multiple Translations**: Support for ESV (primary), NIV, KJV, and more
-- **User Authentication**: Secure login with Azure AD B2C (Apple ID + email/password)
+- **Add Verses**: Easily add Bible verses with manual entry
+- **Optional ESV API**: Automatically fetch verses from the official ESV API
+- **SQLite Database**: Simple file-based database, no server needed
+- **Simple Authentication**: Development mode for easy testing, JWT ready for production
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 
 ## 🏗️ Architecture
@@ -25,26 +25,17 @@ A full-stack TypeScript application for scripture memorization using flashcards 
 - React 18 with TypeScript
 - Vite for fast development and building
 - React Router for navigation
-- ESV API integration for automatic verse lookup
+- Simple API client with fetch
 
 **Backend:**
-- Node.js with Express and TypeScript
-- PostgreSQL database with Prisma ORM
-- JWT-based authentication
+- Azure Functions with TypeScript
+- SQLite database (file-based, zero-config)
+- Direct SQL queries with better-sqlite3
+- Simple JWT-ready authentication
 - RESTful API design
 
-**Infrastructure:**
-- Azure Static Web Apps (frontend hosting)
-- Azure Container Apps (backend hosting)
-- Azure Database for PostgreSQL
-- Azure Container Registry
-- Bicep for Infrastructure as Code
-
-**DevOps:**
-- Docker containers for consistency
-- GitHub Codespaces for development
-- GitHub Actions for CI/CD
-- Automated testing and deployment
+**Deployment:**
+- **Azure Static Web Apps** - Integrated Functions (see `docs/DEPLOYMENT.md`)
 
 ### Project Structure
 
@@ -60,75 +51,32 @@ verse-memorization/
 
 ## 🚀 Quick Start
 
-### ☁️ Deploy to Azure (Production)
-
-This application uses **OIDC (OpenID Connect)** for secure Azure authentication - no long-lived credentials needed.
-
-**Required GitHub Secrets:**
-- `AZURE_CLIENT_ID` - Service principal client ID
-- `AZURE_TENANT_ID` - Azure tenant ID
-- `AZURE_SUBSCRIPTION_ID` - Azure subscription ID
-- `AZURE_STATIC_WEB_APPS_API_TOKEN` - Static Web App deployment token
-
-See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for setup instructions.
-
-### 💻 Local Development
-
-### Prerequisites
-
-- Node.js 20+ and npm 10+
-- Docker and Docker Compose
-- Git
-- **ESV API Key** (free from https://api.esv.org)
-
-### Using Docker (Recommended)
-
-```bash
-# Clone the repository
-git clone https://github.com/dsjohns85/verse-memorization.git
-cd verse-memorization
-
-# Start all services
-docker-compose up
-```
-
-Access the application:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:3001
-- Database: localhost:5432
-
-### Local Development
-
-```bash
-# Install root dependencies
-npm install
-
-# Install backend dependencies
-cd backend
-npm install
-npx prisma generate
-npx prisma migrate dev
-npm run dev
-
-# In a new terminal, install frontend dependencies
-cd frontend
-npm install
-npm run dev
-```
-
-### GitHub Codespaces
+### GitHub Codespaces (Recommended)
 
 1. Click the "Code" button on GitHub
 2. Select "Codespaces" → "Create codespace on main"
 3. Wait for the environment to set up automatically
-4. Start coding!
+4. Codespace includes VS Code, all dependencies, and Azure Functions tools
+
+### Azure Deployment
+
+Deploy to Azure Static Web Apps:
+
+1. Create Static Web App in Azure Portal
+2. Connect to this GitHub repository  
+3. Azure automatically builds and deploys
+4. Cost: Free tier or $9/month
+
+See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed instructions.
 
 ## 📚 Documentation
 
-- [Getting Started Guide](./docs/GETTING_STARTED.md) - Setup and installation
+- [Getting Started Guide](./docs/GETTING_STARTED.md) - Detailed setup and installation
 - [API Documentation](./docs/API.md) - REST API reference
-- [Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure with OIDC
-- [Infrastructure Guide](./infra/README.md) - Azure resources and configuration
+- [Azure Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure
+- [Infrastructure Guide](./infra/README.md) - Azure resources
+- [Azure Deployment Guide](./docs/DEPLOYMENT.md) - Advanced: Deploy to Azure (for enterprises)
+- [Infrastructure Guide](./infra/README.md) - Advanced: Azure resources
 
 ## 🧪 Running Tests
 
@@ -154,12 +102,12 @@ cd frontend && npm test
 
 ## 🔐 Security
 
-- Azure AD B2C for authentication
-- JWT tokens for API access
-- HTTPS only in production
+- Simple development authentication for testing
+- JWT-ready authentication for production
+- HTTPS enforced in Azure
 - Environment variables for secrets
 - Input validation and sanitization
-- SQL injection prevention via Prisma
+- SQL injection prevention via parameterized queries
 
 ## 📈 Spaced Repetition Algorithm
 

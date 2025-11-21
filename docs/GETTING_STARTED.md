@@ -1,228 +1,151 @@
 # Getting Started with Verse Memorization
 
-This guide will help you set up the development environment and start working with the Verse Memorization application.
+This guide will help you start working with the Verse Memorization application.
 
-## Prerequisites
+## Quick Start: GitHub Codespaces (Recommended)
 
-- **Node.js** 20+ and npm 10+
-- **Docker** and Docker Compose
-- **Git**
-- **PostgreSQL** (or use Docker)
-- **ESV API Key** (free from https://api.esv.org)
+The easiest way to get started is using GitHub Codespaces:
 
-## ESV API Setup
+1. Go to the [repository on GitHub](https://github.com/dsjohns85/verse-memorization)
+2. Click the "Code" button
+3. Select "Codespaces" → "Create codespace on main"
+4. Wait for the environment to set up (2-3 minutes)
 
-The application uses the official ESV (English Standard Version) API for automatic verse lookup:
+The Codespace includes:
+- VS Code in your browser
+- All dependencies pre-installed
+- Azure Functions Core Tools
+- SQLite database ready to use
+- Development environment fully configured
+
+### Working in Codespaces
+
+The API (Azure Functions) starts automatically. To access the frontend:
+
+```bash
+cd frontend
+npm install  # First time only
+npm run dev
+```
+
+Access the app:
+- Frontend: Forwarded port (Codespaces will show you the URL)
+- API: http://localhost:7071
+
+## ESV API Setup (Optional)
+
+The application can use the ESV (English Standard Version) API for automatic verse lookup:
 
 1. Visit https://api.esv.org
 2. Create a free account
 3. Generate an API key
-4. Add the key to your `.env` file (see below)
+4. Add to Azure Static Web App configuration (in Azure Portal)
 
-**Note**: The ESV API is free for personal use with reasonable rate limits. The app works without an API key, but automatic verse lookup won't be available.
+**Note**: The app works fine without an API key for manual verse entry.
 
-## Quick Start
+## Deploying to Azure
 
-### 1. Clone the Repository
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete Azure Static Web Apps deployment instructions.
 
-```bash
-git clone https://github.com/dsjohns85/verse-memorization.git
-cd verse-memorization
-```
+### Quick Deploy
 
-### 2. Setup with Docker (Recommended)
-
-The easiest way to get started is using Docker Compose:
-
-```bash
-# Start all services (database, backend, frontend)
-docker-compose up
-```
-
-This will:
-- Start PostgreSQL database on port 5432
-- Start backend API on http://localhost:3001
-- Start frontend on http://localhost:5173
-
-### 3. Setup Locally (Alternative)
-
-If you prefer to run services locally:
-
-#### Backend Setup
-
-```bash
-cd backend
-
-# Install dependencies
-npm install
-
-# Copy environment file
-cp .env.example .env
-
-# Edit .env with your database connection
-# DATABASE_URL="postgresql://postgres:postgres@localhost:5432/verse_memorization"
-
-# Generate Prisma Client
-npx prisma generate
-
-# Run migrations
-npx prisma migrate dev
-
-# Seed the database (optional)
-npm run prisma:seed
-
-# Start development server
-npm run dev
-```
-
-The backend API will be available at http://localhost:3001
-
-#### Frontend Setup
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Copy environment file
-cp .env.example .env
-
-# Edit .env to point to your backend
-# VITE_API_URL=http://localhost:3001
-
-# Start development server
-npm run dev
-```
-
-The frontend will be available at http://localhost:5173
-
-## Development with GitHub Codespaces
-
-This repository is configured for GitHub Codespaces:
-
-1. Click "Code" → "Codespaces" → "Create codespace on main"
-2. Wait for the container to build
-3. All dependencies will be installed automatically
-4. Start developing!
-
-## Testing the Application
-
-### Backend Tests
-
-```bash
-cd backend
-npm test
-```
-
-### Frontend Tests
-
-```bash
-cd frontend
-npm test
-```
-
-## Building for Production
-
-### Backend
-
-```bash
-cd backend
-npm run build
-npm start
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm run build
-npm run preview
-```
+1. Create Static Web App in Azure Portal
+2. Connect to GitHub repository
+3. Configure:
+   - App location: `frontend`
+   - API location: `api`
+   - Output location: `dist`
+4. Azure automatically builds and deploys
 
 ## Project Structure
 
 ```
 verse-memorization/
-├── frontend/          # React + Vite frontend
+├── frontend/              # React + Vite app
 │   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── types/
-│   └── package.json
-├── backend/           # Node.js + Express backend
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   └── middleware/
-│   ├── prisma/
-│   └── package.json
-├── infra/             # Azure Bicep IaC
-├── .devcontainer/     # GitHub Codespaces config
-├── .github/           # GitHub Actions workflows
-└── docs/              # Documentation
+│   ├── package.json
+│   └── vite.config.ts
+├── api/                   # Azure Functions
+│   ├── health/
+│   ├── verses/
+│   ├── reviews/
+│   ├── users/
+│   └── host.json
+├── .devcontainer/         # Codespaces configuration
+└── docs/                  # Documentation
 ```
 
 ## Environment Variables
 
-### Backend (.env)
+### For Azure Deployment
 
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/verse_memorization"
-NODE_ENV="development"
-PORT=3001
-JWT_SECRET="your-secret-key"
+Configure in Azure Portal → Static Web App → Configuration:
+
+```
+DATABASE_PATH=/mnt/database/verses.db
+NODE_ENV=production
+JWT_SECRET=<generate-secure-secret>
 ```
 
-### Frontend (.env)
-
-```env
-VITE_API_URL=http://localhost:3001
-VITE_ESV_API_KEY=your-api-key-from-api.esv.org
-```
-
-**Getting an ESV API Key:**
-1. Visit https://api.esv.org
-2. Sign up for a free account
-3. Create a new API application
-4. Copy the API key to your `.env` file
-
-## Common Issues
-
-### Database Connection Error
-
-If you get a database connection error:
-
-1. Make sure PostgreSQL is running
-2. Check your DATABASE_URL in backend/.env
-3. Verify the database exists: `createdb verse_memorization`
-
-### Port Already in Use
-
-If port 3001 or 5173 is already in use:
-
-1. Stop the conflicting process
-2. Or change the port in the respective .env file
-
-### Prisma Client Not Generated
-
-If you see Prisma Client errors:
-
+Generate secure secret:
 ```bash
-cd backend
-npx prisma generate
+openssl rand -base64 32
 ```
+
+### For Codespaces
+
+Environment variables are configured in `.devcontainer/devcontainer.json`.
+
+## Development Workflow
+
+1. Make changes in Codespace
+2. Test locally (Functions run automatically)
+3. Commit and push to GitHub
+4. Azure automatically deploys to production
+
+## Common Tasks
+
+### View Logs (Azure)
+
+- Go to Azure Portal
+- Navigate to your Static Web App
+- Click "Functions" or "Application Insights"
+- View execution logs and traces
+
+### Test Functions Locally
+
+Functions run automatically in Codespaces at http://localhost:7071
+
+Test endpoints:
+```bash
+curl http://localhost:7071/api/health
+curl http://localhost:7071/api/verses
+```
+
+### Database
+
+The app uses SQLite, stored as a file. In Azure, it's mounted from Azure Storage.
+
+## Troubleshooting
+
+### Codespace Issues
+
+- **Port not forwarding**: Check Ports tab in VS Code
+- **Functions not starting**: Check Terminal for errors
+- **Dependencies missing**: Run `npm install` in the appropriate directory
+
+### Azure Deployment Issues
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) troubleshooting section.
 
 ## Next Steps
 
-- [Development Guide](./DEVELOPMENT.md) - Learn about the development workflow
-- [API Documentation](./API.md) - Explore the REST API
+- [API Documentation](./API.md) - Explore the API endpoints
 - [Deployment Guide](./DEPLOYMENT.md) - Deploy to Azure
+- [Development Guide](./DEVELOPMENT.md) - Development best practices
 
-## Getting Help
+## Support
 
-- Check existing [GitHub Issues](https://github.com/dsjohns85/verse-memorization/issues)
-- Create a new issue if you need help
-- Review the documentation in the `/docs` folder
+- Create an issue on GitHub
+- Check existing documentation in `/docs`
+- Review Azure Static Web Apps documentation
