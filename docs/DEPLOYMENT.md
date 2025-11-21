@@ -1,30 +1,38 @@
 # Deployment Guide
 
-This guide covers deploying the Verse Memorization application to Azure using **Azure Static Web Apps with integrated Functions**.
+Complete guide for deploying the Verse Memorization application to Azure using **Azure Static Web Apps with integrated Functions**.
 
 ## Architecture
 
 The simplified architecture uses:
 - **Azure Static Web App**: Hosts React frontend + Azure Functions backend (integrated)
-- **Azure Storage Account**: Stores SQLite database file
+- **Azure Storage Account**: Stores SQLite database file (optional for now)
 - **No containers, no registry, no complex orchestration**
 
 **Cost**: Free tier ($0/month) or Standard ($9/month)
 
 ## Prerequisites
 
-- Azure account with active subscription
-- Azure CLI installed: `az --version`
+- Azure account with active subscription ([Create free account](https://azure.microsoft.com/free/))
 - GitHub repository access
-- Node.js 18+ for local testing
+- Node.js 20+ for local testing
 
-## Deployment Options
+## Recommended Deployment Method
 
-### Option 1: Azure Portal (Recommended - Simplest)
+### Azure Portal (Easiest & Fully Automated) ⭐
 
-This is the easiest way - Azure handles everything automatically.
+**This is the recommended approach** because:
+- ✅ Fully automated GitHub integration (OAuth)
+- ✅ Auto-generates GitHub Actions workflow
+- ✅ Auto-creates GitHub secrets
+- ✅ No manual configuration needed
+- ✅ Takes 10 minutes total
+- ✅ CD (Continuous Deployment) handled automatically by Azure
 
-#### Steps:
+**CI (Continuous Integration):** The existing `.github/workflows/ci.yml` handles testing and validation.
+**CD (Continuous Deployment):** Azure automatically creates and manages the deployment workflow.
+
+**Quick Summary:**
 
 1. **Create Static Web App in Azure Portal**
    - Go to [Azure Portal](https://portal.azure.com)
@@ -85,10 +93,22 @@ az staticwebapp create \
 
 This creates the app and connects it to your GitHub repository.
 
-### Option 3: Infrastructure as Code (Bicep)
+### Option 3: Infrastructure as Code (Bicep) - NOT RECOMMENDED
 
-For repeatable deployments:
+⚠️ **Important:** Bicep templates are provided but **NOT recommended** for this project.
 
+**Why NOT recommended:**
+- Cannot fully automate GitHub integration (still needs manual OAuth or PAT setup)
+- Portal is simpler and faster (10 min vs 30+ min)
+- Portal handles GitHub workflow generation automatically
+- More complex to troubleshoot
+
+**Only use Bicep if:**
+- You need multiple environments (dev/staging/prod)
+- You have specific IaC compliance requirements
+- You're experienced with Bicep and Azure CLI
+
+**If you still want to use it:**
 ```bash
 # Deploy using Bicep template
 cd infra
@@ -96,12 +116,28 @@ az deployment sub create \
   --location eastus2 \
   --template-file main-staticwebapp.bicep \
   --parameters resourceGroupName=rg-verse-memorization
+
+# Then manually complete GitHub connection in Azure Portal
 ```
 
-The Bicep templates in `/infra` create:
-- Static Web App with GitHub integration
-- Storage account for SQLite database
-- All necessary configuration
+See [infra/README.md](../infra/README.md) for details and limitations.
+
+## Suggested Resource Names
+
+When creating resources in Azure Portal:
+
+**Resource Group:**
+- Production: `rg-verse-memorization` or `rg-versemem-prod`
+- Development: `rg-versemem-dev`
+
+**Static Web App:**
+- Production: `swa-verse-memorization` or `versemem-app`
+- Development: `swa-verse-memorization-dev`
+- Pattern: `swa-versemem-{env}` (where env = dev, staging, prod)
+
+**Storage Account:** (if needed)
+- Must be globally unique, 3-24 chars, lowercase letters/numbers only
+- Suggestions: `versememstore`, `versememdb`, `versemem{yourinitials}`
 
 ## Configuration
 
