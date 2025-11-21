@@ -28,15 +28,14 @@ A full-stack TypeScript application for scripture memorization using flashcards 
 - Simple API client with fetch
 
 **Backend:**
-- Node.js with Express and TypeScript
+- Azure Functions with TypeScript
 - SQLite database (file-based, zero-config)
-- Prisma ORM for database access
+- Direct SQL queries with better-sqlite3
 - Simple JWT-ready authentication
 - RESTful API design
 
 **Deployment:**
-- **Docker** - Simple container-based deployment
-- **Azure** - Static Web Apps + Container Apps (see `docs/DEPLOYMENT.md`)
+- **Azure Static Web Apps** - Integrated Functions (see `docs/DEPLOYMENT.md`)
 
 ### Project Structure
 
@@ -52,49 +51,23 @@ verse-memorization/
 
 ## 🚀 Quick Start
 
-### 💻 Local Development (Simplest)
-
-```bash
-# Clone the repository
-git clone https://github.com/dsjohns85/verse-memorization.git
-cd verse-memorization
-
-# Run setup script
-./setup.sh
-
-# Start the app
-npm run dev
-```
-
-Access the application:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:3001
-
-The setup script automatically:
-- Installs all dependencies
-- Creates SQLite database
-- Generates secure JWT secret
-- Sets up the development environment
-
-### Using Docker
-
-```bash
-# Clone the repository
-git clone https://github.com/dsjohns85/verse-memorization.git
-cd verse-memorization
-
-# Start all services
-docker-compose up
-```
-
-This starts the app with PostgreSQL for a production-like environment.
-
-### GitHub Codespaces
+### GitHub Codespaces (Recommended)
 
 1. Click the "Code" button on GitHub
 2. Select "Codespaces" → "Create codespace on main"
 3. Wait for the environment to set up automatically
-4. Start coding!
+4. Codespace includes VS Code, all dependencies, and Azure Functions tools
+
+### Azure Deployment
+
+Deploy to Azure Static Web Apps:
+
+1. Create Static Web App in Azure Portal
+2. Connect to this GitHub repository  
+3. Azure automatically builds and deploys
+4. Cost: Free tier or $9/month
+
+See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed instructions.
 
 ## 📚 Documentation
 
@@ -131,10 +104,10 @@ cd frontend && npm test
 
 - Simple development authentication for testing
 - JWT-ready authentication for production
-- HTTPS recommended for production
+- HTTPS enforced in Azure
 - Environment variables for secrets
 - Input validation and sanitization
-- SQL injection prevention via Prisma ORM
+- SQL injection prevention via parameterized queries
 
 ## 📈 Spaced Repetition Algorithm
 

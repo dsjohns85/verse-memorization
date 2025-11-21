@@ -1,31 +1,62 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { PrismaClient } from "@prisma/client";
+import Database from "better-sqlite3";
+import { randomUUID } from "crypto";
 
-const prisma = new PrismaClient();
+// Simple database connection
+function getDb(): Database.Database {
+    const dbPath = process.env.DATABASE_PATH || "./data/verses.db";
+    const db = new Database(dbPath);
+    
+    // Initialize schema if needed
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS users (
+            id TEXT PRIMARY KEY,
+            email TEXT UNIQUE NOT NULL,
+            name TEXT,
+            createdAt INTEGER NOT NULL,
+            updatedAt INTEGER NOT NULL
+        );
+        
+        CREATE TABLE IF NOT EXISTS verses (
+            id TEXT PRIMARY KEY,
+            reference TEXT NOT NULL,
+            text TEXT NOT NULL,
+            translation TEXT DEFAULT 'ESV',
+            userId TEXT NOT NULL,
+            createdAt INTEGER NOT NULL,
+            updatedAt INTEGER NOT NULL,
+            FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+        );
+        
+        CREATE INDEX IF NOT EXISTS idx_verses_userId ON verses(userId);
+    `);
+    
+    return db;
+}
 
 export async function getVerses(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Get verses request`);
     
     try {
-        // Get user email from header (dev mode) or JWT
+        const db = getDb();
         const userEmail = request.headers.get('x-user-email') || 'test@example.com';
         
         // Find or create user
-        let user = await prisma.user.findUnique({
-            where: { email: userEmail }
-        });
+        let user = db.prepare('SELECT * FROM users WHERE email = ?').get(userEmail) as any;
         
         if (!user) {
-            user = await prisma.user.create({
-                data: { email: userEmail }
-            });
+            const userId = randomUUID();
+            const now = Date.now();
+            db.prepare('INSERT INTO users (id, email, createdAt, updatedAt) VALUES (?, ?, ?, ?)')
+                .run(userId, userEmail, now, now);
+            user = { id: userId, email: userEmail };
         }
         
         // Get verses for user
-        const verses = await prisma.verse.findMany({
-            where: { userId: user.id },
-            orderBy: { createdAt: 'desc' }
-        });
+        const verses = db.prepare('SELECT * FROM verses WHERE userId = ? ORDER BY createdAt DESC')
+            .all(user.id);
+        
+        db.close();
         
         return {
             status: 200,
@@ -44,29 +75,39 @@ export async function createVerse(request: HttpRequest, context: InvocationConte
     context.log(`Create verse request`);
     
     try {
+        const db = getDb();
         const body = await request.json() as any;
         const userEmail = request.headers.get('x-user-email') || 'test@example.com';
         
         // Find or create user
-        let user = await prisma.user.findUnique({
-            where: { email: userEmail }
-        });
+        let user = db.prepare('SELECT * FROM users WHERE email = ?').get(userEmail) as any;
         
         if (!user) {
-            user = await prisma.user.create({
-                data: { email: userEmail }
-            });
+            const userId = randomUUID();
+            const now = Date.now();
+            db.prepare('INSERT INTO users (id, email, createdAt, updatedAt) VALUES (?, ?, ?, ?)')
+                .run(userId, userEmail, now, now);
+            user = { id: userId, email: userEmail };
         }
         
         // Create verse
-        const verse = await prisma.verse.create({
-            data: {
-                reference: body.reference,
-                text: body.text,
-                translation: body.translation || 'ESV',
-                userId: user.id
-            }
-        });
+        const verseId = randomUUID();
+        const now = Date.now();
+        db.prepare(`
+            INSERT INTO verses (id, reference, text, translation, userId, createdAt, updatedAt) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).run(
+            verseId,
+            body.reference,
+            body.text,
+            body.translation || 'ESV',
+            user.id,
+            now,
+            now
+        );
+        
+        const verse = db.prepare('SELECT * FROM verses WHERE id = ?').get(verseId);
+        db.close();
         
         return {
             status: 201,
