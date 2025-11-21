@@ -15,7 +15,6 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "ms-azuretools.vscode-azurefunctions",
-        "ms-azuretools.vscode-bicep",
         "ms-vscode.vscode-typescript-next"
       ],
       "settings": {
