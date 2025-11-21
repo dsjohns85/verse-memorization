@@ -93,35 +93,6 @@ az staticwebapp create \
 
 This creates the app and connects it to your GitHub repository.
 
-### Option 3: Infrastructure as Code (Bicep) - NOT RECOMMENDED
-
-⚠️ **Important:** Bicep templates are provided but **NOT recommended** for this project.
-
-**Why NOT recommended:**
-- Cannot fully automate GitHub integration (still needs manual OAuth or PAT setup)
-- Portal is simpler and faster (10 min vs 30+ min)
-- Portal handles GitHub workflow generation automatically
-- More complex to troubleshoot
-
-**Only use Bicep if:**
-- You need multiple environments (dev/staging/prod)
-- You have specific IaC compliance requirements
-- You're experienced with Bicep and Azure CLI
-
-**If you still want to use it:**
-```bash
-# Deploy using Bicep template
-cd infra
-az deployment sub create \
-  --location eastus2 \
-  --template-file main-staticwebapp.bicep \
-  --parameters resourceGroupName=rg-verse-memorization
-
-# Then manually complete GitHub connection in Azure Portal
-```
-
-See [infra/README.md](../infra/README.md) for details and limitations.
-
 ## Suggested Resource Names
 
 When creating resources in Azure Portal:
