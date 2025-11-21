@@ -4,7 +4,7 @@
 
 These Bicep templates are **optional** and provided for advanced scenarios only. They cannot fully automate GitHub integration and still require manual setup steps.
 
-**For most users:** Follow [AZURE_SETUP_GUIDE.md](../docs/AZURE_SETUP_GUIDE.md) to deploy via Azure Portal (takes 10 minutes, fully automated).
+**For most users:** Follow [DEPLOYMENT.md](../docs/DEPLOYMENT.md) to deploy via Azure Portal (takes 10 minutes, fully automated).
 
 **Use Bicep only if:** You need multiple environments (dev/staging/prod) or have specific IaC requirements.
 
