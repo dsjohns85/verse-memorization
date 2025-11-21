@@ -1,129 +1,114 @@
-# Verse Memorization - Infrastructure
+# Infrastructure - Azure Static Web Apps
 
-This directory contains the Azure infrastructure as code (IaC) using Bicep.
+This directory contains Bicep templates for deploying the Verse Memorization app to Azure using **Static Web Apps with integrated Functions**.
 
-## Resources Created
+## What Gets Created
 
-- **Resource Group**: Container for all resources
-- **Static Web App**: Hosts the React frontend
-- **Container App**: Hosts the Node.js backend API
-- **PostgreSQL Flexible Server**: Database for storing verses and reviews
-- **Container Registry**: Stores Docker images
-- **Log Analytics Workspace**: Monitoring and logging
-- **Container Apps Environment**: Managed environment for Container Apps
+### Main Resources
+- **Static Web App**: Hosts frontend + API functions
+- **Storage Account**: Stores SQLite database file
 
-## Prerequisites
-
-- Azure CLI installed
-- Azure subscription
-- Appropriate permissions to create resources
+### Features Included
+- Global CDN for frontend
+- Automatic SSL certificates
+- Integrated Azure Functions (no separate deployment)
+- GitHub Actions workflow (auto-generated)
+- PR preview environments
 
 ## Deployment
 
-### 1. Login to Azure
-
+### Quick Deploy
 ```bash
-az login
-```
-
-### 2. Set Subscription (if you have multiple)
-
-```bash
-az account set --subscription "Your Subscription Name"
-```
-
-### 3. Deploy Infrastructure
-
-```bash
-# Deploy to dev environment
 az deployment sub create \
-  --location eastus \
-  --template-file main.bicep \
-  --parameters environment=dev databasePassword='YourSecurePassword123!'
-
-# Deploy to production  
-az deployment sub create \
-  --location eastus \
-  --template-file main.bicep \
-  --parameters environment=prod \
-    resourceGroupName=rg-verse-memorization-prod \
-    databasePassword='YourSecurePassword123!'
+  --location eastus2 \
+  --template-file main-staticwebapp.bicep \
+  --parameters resourceGroupName=rg-verse-memorization
 ```
 
-**Important**: Always use a strong, unique password for the database. In production, consider using Azure Key Vault to manage secrets.
+### What It Creates
+1. Resource Group: `rg-verse-memorization`
+2. Static Web App: `verse-memorization-{env}`
+3. Storage Account: `versemem{uniqueid}`
+4. File Share: `database` (for SQLite file)
 
-### 4. Get Deployment Outputs
+## Files
 
-```bash
-az deployment sub show \
-  --name resources-deployment \
-  --query properties.outputs
-```
+- **main-staticwebapp.bicep**: Main deployment template (new approach)
+- **resources-staticwebapp.bicep**: Resources definition
+- **main.bicep**: Legacy Container Apps template (deprecated)
+- **resources.bicep**: Legacy Container Apps resources (deprecated)
+
+## Cost
+
+### Free Tier (Default)
+- Static Web App: **$0**
+- Functions: 1M requests/month **$0**
+- Storage: 5GB **$0**
+- **Total: $0/month**
+
+### Standard Tier (If Needed)
+- Static Web App: **$9/month**
+- Functions: ~$0.20 per million requests
+- Storage: ~$0.02/GB/month
+- **Total: ~$10-15/month**
+
+## Why This Is Better
+
+**Previous (Container Apps)**:
+- Container Apps: $30-40/month
+- Container Registry: $5/month
+- PostgreSQL: $15-20/month
+- Complex setup with Docker
+- **Total: $50+/month**
+
+**Now (Static Web Apps)**:
+- Static Web App: Free or $9/month
+- Simple setup, no Docker
+- **Total: $0-10/month**
+
+**Savings: 80-100%**
 
 ## Configuration
 
-After deployment, update your application configuration:
+After deployment, configure in Azure Portal:
 
-1. **Frontend (.env)**:
-   - `VITE_API_URL`: Use the Container App URL from outputs
-   - Configure Azure AD B2C settings
-
-2. **Backend (.env)**:
-   - `DATABASE_URL`: Automatically configured via Container App secrets
-   - Configure Azure AD B2C settings
-
-## Cost Estimation (Dev Environment)
-
-- Static Web App: Free tier
-- Container App: ~$10-30/month (Basic tier)
-- PostgreSQL: ~$15-30/month (Burstable B1ms)
-- Container Registry: ~$5/month (Basic)
-- Log Analytics: Pay-as-you-go (~$2-5/month for small usage)
-
-**Estimated Total**: $32-70/month for development
-
-## Security Notes
-
-✅ **Enhanced Security**: The Bicep templates use secure parameters for sensitive data:
-
-1. **Database Password**: Use the `databasePassword` parameter (marked as `@secure()`)
-   ```bash
-   az deployment sub create ... --parameters databasePassword='YourPassword'
-   ```
-
-2. **Azure Key Vault**: For production, integrate Azure Key Vault:
-   - Store database password in Key Vault
-   - Reference secrets in Bicep using Key Vault references
-   - Enable managed identities for secure access
-
-3. **Best Practices**:
-   - Use strong, randomly generated passwords
-   - Never commit passwords to source control
-   - Rotate credentials regularly
-   - Enable Azure AD authentication for PostgreSQL
-   - Use private endpoints for database connections
-
-**Example with Key Vault** (recommended for production):
-```bicep
-param keyVaultName string
-param secretName string
-
-resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
-  name: keyVaultName
-  
-  resource secret 'secrets' existing = {
-    name: secretName
-  }
-}
-
-// Use in PostgreSQL resource
-administratorLoginPassword: keyVault::secret.properties.value
+### Environment Variables
 ```
+DATABASE_PATH=/mnt/database/verses.db
+NODE_ENV=production
+JWT_SECRET=<secure-random-string>
+```
+
+### Storage Mount
+Mount the file share to Functions:
+1. Portal → Static Web App → Configuration
+2. Add mount: `/mnt/database` → `database` file share
+
+## GitHub Integration
+
+The Bicep template can optionally configure GitHub integration, but it's easier to do this in the Azure Portal:
+
+1. Create Static Web App in Portal
+2. Connect to GitHub
+3. Azure creates the deployment workflow automatically
+
+No manual GitHub secrets or workflow configuration needed.
+
+## Monitoring
+
+Use Azure Portal to monitor:
+- Application Insights (automatically enabled)
+- Function execution logs
+- Request traces
+- Performance metrics
 
 ## Clean Up
 
 To delete all resources:
-
 ```bash
 az group delete --name rg-verse-memorization --yes
 ```
+
+## Support
+
+See [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md) for detailed deployment instructions.
