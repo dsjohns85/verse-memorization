@@ -60,23 +60,31 @@ verse-memorization/
 
 ### Azure Deployment
 
-Deploy to Azure Static Web Apps:
+Deploy to Azure Static Web Apps (Recommended):
 
-1. Create Static Web App in Azure Portal
-2. Connect to this GitHub repository  
-3. Azure automatically builds and deploys
-4. Cost: Free tier or $9/month
+1. **Create Static Web App in Azure Portal**
+2. **Connect to this GitHub repository**
+3. **Configure build settings:**
+   - App location: `/frontend`
+   - API location: `/api`
+   - Output location: `dist`
+4. **Azure automatically builds and deploys**
+5. **Cost:** Free tier ($0/month) or Standard ($9/month)
 
-See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed instructions.
+See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for complete step-by-step instructions.
+
+**Suggested Resource Names:**
+- Resource Group: `rg-verse-memorization` or `rg-versemem-prod`
+- Static Web App: `swa-verse-memorization` or `versemem-app`
 
 ## 📚 Documentation
 
 - [Getting Started Guide](./docs/GETTING_STARTED.md) - Detailed setup and installation
 - [API Documentation](./docs/API.md) - REST API reference
-- [Azure Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure
-- [Infrastructure Guide](./infra/README.md) - Azure resources
-- [Azure Deployment Guide](./docs/DEPLOYMENT.md) - Advanced: Deploy to Azure (for enterprises)
-- [Infrastructure Guide](./infra/README.md) - Advanced: Azure resources
+- [Deployment Guide](./docs/DEPLOYMENT.md) - Deploy to Azure Static Web Apps
+- [Infrastructure Guide](./infra/README.md) - Optional: Bicep/IaC templates
+- [Development Guide](./docs/DEVELOPMENT.md) - Development workflow
+- [Security Guide](./docs/SECURITY.md) - Security best practices
 
 ## 🧪 Running Tests
 

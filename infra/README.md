@@ -1,5 +1,15 @@
 # Infrastructure - Azure Static Web Apps
 
+⚠️ **IMPORTANT: Azure Portal is the recommended deployment method.**
+
+These Bicep templates are **optional** and provided for advanced scenarios only. They cannot fully automate GitHub integration and still require manual setup steps.
+
+**For most users:** Follow [DEPLOYMENT.md](../docs/DEPLOYMENT.md) to deploy via Azure Portal (takes 10 minutes, fully automated).
+
+**Use Bicep only if:** You need multiple environments (dev/staging/prod) or have specific IaC requirements.
+
+---
+
 This directory contains Bicep templates for deploying the Verse Memorization app to Azure using **Static Web Apps with integrated Functions**.
 
 ## What Gets Created
@@ -17,13 +27,29 @@ This directory contains Bicep templates for deploying the Verse Memorization app
 
 ## Deployment
 
-### Quick Deploy
+### ⚠️ Limitation: GitHub Integration NOT Fully Automated
+
+Bicep can create Azure resources but **cannot fully automate GitHub integration**. You still need to:
+1. Provide a GitHub Personal Access Token (PAT)
+2. Manually configure the GitHub connection, OR
+3. Let Azure Portal handle it automatically (recommended)
+
+**Recommendation:** Use Azure Portal for initial deployment. It's faster and handles GitHub integration automatically.
+
+### If You Still Want to Use Bicep
+
 ```bash
 az deployment sub create \
   --location eastus2 \
   --template-file main-staticwebapp.bicep \
   --parameters resourceGroupName=rg-verse-memorization
 ```
+
+**Then manually:**
+1. Go to Azure Portal → Your Static Web App
+2. Click "Manage deployment token"
+3. Add token to GitHub repository secrets
+4. Manually create GitHub Actions workflow OR let Azure connect to GitHub via Portal
 
 ### What It Creates
 1. Resource Group: `rg-verse-memorization`
