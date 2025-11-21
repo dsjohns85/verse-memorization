@@ -27,7 +27,7 @@ This guide covers best practices, conventions, and workflows for developing the 
    ```
 
 2. **Configure Environment Variables**
-   - Copy `.env.example` to `.env` in both `frontend` and `backend` directories
+   - Copy `.env.example` to `.env` in the `frontend` directory if needed
    - Update values for your local environment
 
 3. **Start Development Servers**
@@ -406,9 +406,9 @@ Types:
 
 Example:
 ```
-feat(backend): add verse search endpoint
+feat(api): add verse search endpoint
 
-Implement full-text search for verses using PostgreSQL
+Implement full-text search for verses using SQLite
 full-text search capabilities.
 
 Closes #123

@@ -81,7 +81,6 @@ The following VS Code extensions are automatically installed:
 - **Azure Functions**: Manage and deploy Functions
 - **ESLint**: Code linting
 - **Prettier**: Code formatting
-- **Bicep**: Infrastructure as Code
 - **TypeScript**: Enhanced TypeScript support
 
 ## Troubleshooting
