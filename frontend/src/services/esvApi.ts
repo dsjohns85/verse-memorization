@@ -29,6 +29,25 @@ class ESVApiClient {
   }
 
   /**
+   * Validate API key is configured
+   */
+  private validateApiKey(): void {
+    if (!this.apiKey) {
+      throw new Error('ESV API key not configured. Set VITE_ESV_API_KEY in environment.');
+    }
+  }
+
+  /**
+   * Handle axios errors consistently
+   */
+  private handleError(error: unknown, context: string): never {
+    if (axios.isAxiosError(error)) {
+      throw new Error(`ESV API ${context}: ${error.response?.statusText || error.message}`);
+    }
+    throw error;
+  }
+
+  /**
    * Fetch a passage from the ESV API
    * @param reference - Bible reference (e.g., "John 3:16", "Romans 8:28-30")
    * @returns Passage text and metadata
@@ -38,9 +57,7 @@ class ESVApiClient {
     text: string;
     canonical: string;
   }> {
-    if (!this.apiKey) {
-      throw new Error('ESV API key not configured. Set VITE_ESV_API_KEY in environment.');
-    }
+    this.validateApiKey();
 
     try {
       const response = await axios.get<ESVPassage>(`${this.baseUrl}/passage/text/`, {
@@ -75,10 +92,7 @@ class ESVApiClient {
         canonical: data.canonical,
       };
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(`ESV API error: ${error.response?.statusText || error.message}`);
-      }
-      throw error;
+      this.handleError(error, 'error');
     }
   }
 
@@ -97,9 +111,7 @@ class ESVApiClient {
     page: number;
     total_pages: number;
   }> {
-    if (!this.apiKey) {
-      throw new Error('ESV API key not configured');
-    }
+    this.validateApiKey();
 
     try {
       const response = await axios.get(`${this.baseUrl}/passage/search/`, {
@@ -115,10 +127,7 @@ class ESVApiClient {
 
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(`ESV API search error: ${error.response?.statusText || error.message}`);
-      }
-      throw error;
+      this.handleError(error, 'search error');
     }
   }
 }
