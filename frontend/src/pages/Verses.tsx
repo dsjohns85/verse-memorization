@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../services/api';
 import { Verse } from '../types';
+import Loading from '../components/Loading';
 
 export default function Verses() {
   const [verses, setVerses] = useState<Verse[]>([]);
@@ -36,11 +37,7 @@ export default function Verses() {
   };
 
   if (loading) {
-    return (
-      <div className="container">
-        <p>Loading...</p>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

@@ -2,6 +2,15 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import Database from "better-sqlite3";
 import { randomUUID } from "crypto";
 
+// Type definitions
+interface User {
+    id: string;
+    email: string;
+    name?: string;
+    createdAt: number;
+    updatedAt: number;
+}
+
 // Simple database connection
 function getDb(): Database.Database {
     const dbPath = process.env.DATABASE_PATH || "./data/verses.db";
@@ -34,6 +43,21 @@ function getDb(): Database.Database {
     return db;
 }
 
+// Find or create user by email
+function findOrCreateUser(db: Database.Database, userEmail: string): User {
+    let user = db.prepare('SELECT * FROM users WHERE email = ?').get(userEmail) as User | undefined;
+    
+    if (!user) {
+        const userId = randomUUID();
+        const now = Date.now();
+        db.prepare('INSERT INTO users (id, email, createdAt, updatedAt) VALUES (?, ?, ?, ?)')
+            .run(userId, userEmail, now, now);
+        user = { id: userId, email: userEmail, createdAt: now, updatedAt: now };
+    }
+    
+    return user;
+}
+
 export async function getVerses(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Get verses request`);
     
@@ -42,15 +66,7 @@ export async function getVerses(request: HttpRequest, context: InvocationContext
         const userEmail = request.headers.get('x-user-email') || 'test@example.com';
         
         // Find or create user
-        let user = db.prepare('SELECT * FROM users WHERE email = ?').get(userEmail) as any;
-        
-        if (!user) {
-            const userId = randomUUID();
-            const now = Date.now();
-            db.prepare('INSERT INTO users (id, email, createdAt, updatedAt) VALUES (?, ?, ?, ?)')
-                .run(userId, userEmail, now, now);
-            user = { id: userId, email: userEmail };
-        }
+        const user = findOrCreateUser(db, userEmail);
         
         // Get verses for user
         const verses = db.prepare('SELECT * FROM verses WHERE userId = ? ORDER BY createdAt DESC')
@@ -80,15 +96,7 @@ export async function createVerse(request: HttpRequest, context: InvocationConte
         const userEmail = request.headers.get('x-user-email') || 'test@example.com';
         
         // Find or create user
-        let user = db.prepare('SELECT * FROM users WHERE email = ?').get(userEmail) as any;
-        
-        if (!user) {
-            const userId = randomUUID();
-            const now = Date.now();
-            db.prepare('INSERT INTO users (id, email, createdAt, updatedAt) VALUES (?, ?, ?, ?)')
-                .run(userId, userEmail, now, now);
-            user = { id: userId, email: userEmail };
-        }
+        const user = findOrCreateUser(db, userEmail);
         
         // Create verse
         const verseId = randomUUID();

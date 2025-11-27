@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { apiClient } from '../services/api';
 import { ReviewStats } from '../types';
+import Loading from '../components/Loading';
 
 export default function Progress() {
   const [stats, setStats] = useState<ReviewStats | null>(null);
@@ -24,11 +25,7 @@ export default function Progress() {
   }, [loadStats]);
 
   if (loading) {
-    return (
-      <div className="container">
-        <p>Loading...</p>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
