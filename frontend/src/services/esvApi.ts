@@ -92,7 +92,7 @@ class ESVApiClient {
         canonical: data.canonical,
       };
     } catch (error) {
-      this.handleError(error, 'error');
+      this.handleError(error, 'passage fetch failed');
     }
   }
 
