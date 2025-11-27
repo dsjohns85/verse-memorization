@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiClient } from '../services/api';
 import { VerseStats } from '../types';
+import Loading from '../components/Loading';
 
 export default function Home() {
   const [stats, setStats] = useState<VerseStats | null>(null);
@@ -23,11 +24,7 @@ export default function Home() {
   };
 
   if (loading) {
-    return (
-      <div className="container">
-        <p>Loading...</p>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

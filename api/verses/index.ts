@@ -34,6 +34,21 @@ function getDb(): Database.Database {
     return db;
 }
 
+// Find or create user by email
+function findOrCreateUser(db: Database.Database, userEmail: string): any {
+    let user = db.prepare('SELECT * FROM users WHERE email = ?').get(userEmail) as any;
+    
+    if (!user) {
+        const userId = randomUUID();
+        const now = Date.now();
+        db.prepare('INSERT INTO users (id, email, createdAt, updatedAt) VALUES (?, ?, ?, ?)')
+            .run(userId, userEmail, now, now);
+        user = { id: userId, email: userEmail };
+    }
+    
+    return user;
+}
+
 export async function getVerses(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Get verses request`);
     
@@ -42,15 +57,7 @@ export async function getVerses(request: HttpRequest, context: InvocationContext
         const userEmail = request.headers.get('x-user-email') || 'test@example.com';
         
         // Find or create user
-        let user = db.prepare('SELECT * FROM users WHERE email = ?').get(userEmail) as any;
-        
-        if (!user) {
-            const userId = randomUUID();
-            const now = Date.now();
-            db.prepare('INSERT INTO users (id, email, createdAt, updatedAt) VALUES (?, ?, ?, ?)')
-                .run(userId, userEmail, now, now);
-            user = { id: userId, email: userEmail };
-        }
+        const user = findOrCreateUser(db, userEmail);
         
         // Get verses for user
         const verses = db.prepare('SELECT * FROM verses WHERE userId = ? ORDER BY createdAt DESC')
@@ -80,15 +87,7 @@ export async function createVerse(request: HttpRequest, context: InvocationConte
         const userEmail = request.headers.get('x-user-email') || 'test@example.com';
         
         // Find or create user
-        let user = db.prepare('SELECT * FROM users WHERE email = ?').get(userEmail) as any;
-        
-        if (!user) {
-            const userId = randomUUID();
-            const now = Date.now();
-            db.prepare('INSERT INTO users (id, email, createdAt, updatedAt) VALUES (?, ?, ?, ?)')
-                .run(userId, userEmail, now, now);
-            user = { id: userId, email: userEmail };
-        }
+        const user = findOrCreateUser(db, userEmail);
         
         // Create verse
         const verseId = randomUUID();

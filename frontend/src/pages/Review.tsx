@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../services/api';
 import { Verse } from '../types';
+import Loading from '../components/Loading';
 
 export default function Review() {
   const navigate = useNavigate();
@@ -50,11 +51,7 @@ export default function Review() {
   };
 
   if (loading) {
-    return (
-      <div className="container">
-        <p>Loading...</p>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (verses.length === 0) {
